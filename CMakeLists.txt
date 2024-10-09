@@ -49,7 +49,7 @@ EXECUTE_PROCESS(
 )
 
 CONFIGURE_FILE(
-    ${CMAKE_SOURCE_DIR}/src/config/include/version.h.in
+    ${CMAKE_SOURCE_DIR}/utils/version.h.in
     ${CMAKE_SOURCE_DIR}/src/config/include/version.h
 )
 
