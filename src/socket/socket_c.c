@@ -1,4 +1,4 @@
-#include "socket.h"
+#include "socket_c.h"
 
 /**
  * @brief Create device descriptor for socket wrap.
@@ -107,5 +107,13 @@ int Socket_Get(int device, uint8_t* buffer, size_t n, struct sockaddr* target, i
     {
         socklen_t length = sizeof(*target);
         return recvfrom(device, (char *)buffer, n, MSG_WAITALL, target, &length);
+    }
+}
+
+void Socket_Exit(struct Socket_Wrap *p_socket)
+{
+    if (p_socket->device != -1) {
+        close(p_socket->device);
+        p_socket->device = -1;
     }
 }

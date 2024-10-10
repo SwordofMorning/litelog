@@ -1,5 +1,16 @@
 #pragma once
 
+/**
+ * @file socket_c.h
+ * @author master@xiaojintao.email
+ * @brief Socket interface via C
+ * @version 0.1
+ * @date 2024-10-10
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -60,6 +71,13 @@ int Socket_Send(int device, uint8_t* buffer, size_t n, struct sockaddr* target);
  * @return int receive size.
  */
 int Socket_Get(int device, uint8_t* buffer, size_t n, struct sockaddr* target, int timeout_ms);
+
+/**
+ * @brief Close socket and release resources.
+ * 
+ * @param p_socket which socket will be closed.
+ */
+void Socket_Exit(struct Socket_Wrap *p_socket);
 
 #ifdef __cplusplus
 }
