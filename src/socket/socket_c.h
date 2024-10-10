@@ -67,8 +67,12 @@ int Socket_Send(int device, uint8_t* buffer, size_t n, struct sockaddr* target);
  * @param buffer receive buffer
  * @param n bytes to receive.
  * @param target receive from.
- * @param timeout_ms timeout parameter.
- * @return int receive size.
+ * @param timeout_ms if timeout_ms > 0, wait for the time to change and then return; if timeout_ms <= 0, block.
+ * 
+ * @return success or not.
+ * @retval >0, data size.
+ * @retval -1, select ret error.
+ * @retval -2, timeout.
  */
 int Socket_Recv(int device, uint8_t* buffer, size_t n, struct sockaddr* target, int timeout_ms);
 

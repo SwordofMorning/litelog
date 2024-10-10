@@ -33,14 +33,14 @@ int Socket::Recv(uint8_t* buffer, size_t n, int timeout_ms)
     return Socket_Recv(m_local.device, buffer, n, (sockaddr*)&m_remote, timeout_ms);
 }
 
-Socket_Listen::Socket_Listen(const char* local_ip, const uint16_t& local_port)
+Socket_Listen::Socket_Listen(const char* listen_ip, const uint16_t& listen_port)
 {
-    Socket_Init(&m_listen2, local_ip, local_port);
+    Socket_Init(&m_listen2, listen_ip, listen_port);
 }
 
-Socket_Listen::Socket_Listen(const std::string& local_ip, const uint16_t& local_port)
+Socket_Listen::Socket_Listen(const std::string& listen_ip, const uint16_t& listen_port)
 {
-    Socket_Init(&m_listen2, local_ip.c_str(), local_port);
+    Socket_Init(&m_listen2, listen_ip.c_str(), listen_port);
 }
 
 Socket_Listen::~Socket_Listen()

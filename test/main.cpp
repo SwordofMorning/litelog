@@ -1,6 +1,7 @@
 #include "../utils/version.h"
 #include "../src/config/config.h"
 #include "./case/socket/socket.hpp"
+#include "./case/socket/monitor.hpp"
 
 void Version()
 {
@@ -20,6 +21,7 @@ int main()
     RUN_TEST_CASE(socket_unidirectional);
     RUN_TEST_CASE(socket_bidirectional);
     RUN_TEST_CASE(socket_listen);
+    RUN_TEST_CASE(monitor);
 
     printf("[----------] Global test environment tear-down.\n");
     print_test_results();

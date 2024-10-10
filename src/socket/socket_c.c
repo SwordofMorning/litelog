@@ -80,16 +80,20 @@ int Socket_Recv(int device, uint8_t* buffer, size_t n, struct sockaddr* target, 
 {
     fd_set rfds;
     struct timeval tv;
+    struct timeval* ptv = NULL;
     int selectRet;
 
-    // Timeout
-    tv.tv_sec = timeout_ms / 1000;
-    tv.tv_usec = (timeout_ms % 1000) * 1000;
+    if (timeout_ms > 0) 
+    {
+        tv.tv_sec = timeout_ms / 1000;
+        tv.tv_usec = (timeout_ms % 1000) * 1000;
+        ptv = &tv;
+    }
 
     FD_ZERO(&rfds);
     FD_SET(device, &rfds);
 
-    selectRet = select(device + 1, &rfds, NULL, NULL, &tv);
+    selectRet = select(device + 1, &rfds, NULL, NULL, ptv);
 
     // Select ret error
     if (selectRet == -1) 

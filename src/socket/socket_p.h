@@ -50,8 +50,29 @@ public:
 
     ~Socket();
 
+    /**
+     * @brief Send data to target.
+     * 
+     * @param device socket device.
+     * @param buffer send buffer.
+     * @param n bytes to send.
+     * @param target receive from
+     * @return int send size.
+     */
     int Send(uint8_t* buffer, size_t n);
 
+    /**
+     * @brief Receive data from m_listen2.
+     * 
+     * @param buffer receive buffer
+     * @param n bytes to receive.
+     * @param timeout_ms if timeout_ms > 0, wait for the time to change and then return; if timeout_ms <= 0, block.
+     * 
+     * @return success or not.
+     * @retval >0, data size.
+     * @retval -1, select ret error.
+     * @retval -2, timeout.
+     */
     int Recv(uint8_t* buffer, size_t n, int timeout_ms);
 };
 
@@ -73,11 +94,23 @@ private:
 public:
     Socket_Listen() = delete;
 
-    Socket_Listen(const char* local_ip, const uint16_t& local_port);
+    Socket_Listen(const char* listen_ip, const uint16_t& listen_port);
 
-    Socket_Listen(const std::string& local_ip, const uint16_t& local_port);
+    Socket_Listen(const std::string& listen_ip, const uint16_t& listen_port);
 
     ~Socket_Listen();
 
+    /**
+     * @brief Receive data from m_listen2.
+     * 
+     * @param buffer receive buffer
+     * @param n bytes to receive.
+     * @param timeout_ms if timeout_ms > 0, wait for the time to change and then return; if timeout_ms <= 0, block.
+     * 
+     * @return success or not.
+     * @retval >0, data size.
+     * @retval -1, select ret error.
+     * @retval -2, timeout.
+     */
     int Recv(uint8_t* buffer, size_t n, int timeout_ms);
 };
