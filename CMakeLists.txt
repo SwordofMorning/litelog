@@ -20,7 +20,7 @@ SET(TEST_NAME "Litelog_Test")
 # ===== Setp 4 : Add Subdirectory =====
 
 ADD_SUBDIRECTORY(src bin)
-# ADD_SUBDIRECTORY(test)
+ADD_SUBDIRECTORY(test)
 
 # ===== Step 5: Generate Version Info =====
 
