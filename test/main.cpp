@@ -17,8 +17,9 @@ int main()
     printf("[==========] Test Begin.\n");
     printf("[----------] Global test environment set-up.\n");
 
-    RUN_TEST_CASE(socket_p2p_unidirectional);
-    RUN_TEST_CASE(socket_p2p_bidirectional);
+    RUN_TEST_CASE(socket_unidirectional);
+    RUN_TEST_CASE(socket_bidirectional);
+    RUN_TEST_CASE(socket_listen);
 
     printf("[----------] Global test environment tear-down.\n");
     print_test_results();

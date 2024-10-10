@@ -28,9 +28,10 @@
  * @note With this configuration, invoking A.Send() will transmit data to B, which can be retrieved using B.Get().
  * @note This elegant design allows for efficient and reliable data exchange between the two endpoints.
  * 
- * @ref You can see the typical usage in "/test/case/socket.hpp", socket_p2p_unidirectional and socket_p2p_bidirectional.
+ * @ref For a pragmatic demonstration of this class's application, kindly refer to "/test/case/socket.hpp",
+ *      specifically the socket_unidirectional and socket_bidirectional examples.
  */
-class Socket_P2P
+class Socket
 {
 private:
     // The socket associated with the current program instance.
@@ -39,18 +40,44 @@ private:
     struct sockaddr_in m_remote;
 
 public:
-    Socket_P2P() = delete;
+    Socket() = delete;
 
-    Socket_P2P(const char* local_ip, const uint16_t& local_port, 
+    Socket(const char* local_ip, const uint16_t& local_port, 
         const char* target_ip, const uint16_t& target_port);
 
-    Socket_P2P(const std::string& local_ip, const uint16_t& local_port, 
+    Socket(const std::string& local_ip, const uint16_t& local_port, 
         const std::string& target_ip, const uint16_t& target_port);
 
-    ~Socket_P2P();
+    ~Socket();
 
     int Send(uint8_t* buffer, size_t n);
 
-    int Get(uint8_t* buffer, size_t n, int timeout_ms);
+    int Recv(uint8_t* buffer, size_t n, int timeout_ms);
 };
 
+/**
+ * @brief A UDP listener class designed to exclusively receive data from the specified m_listen2 address.
+ * 
+ * @note The archetypal usage scenario involves a singular entity A, characterized by its m_listen2 member variable.
+ * @note To illustrate, if the objective is to listen on 127.0.0.1:12345, one need only assign m_listen2 = 127.0.0.1:12345.
+ * @note Subsequently, invoking A.Recv() will facilitate the retrieval of incoming data.
+ * 
+ * @ref For a pragmatic demonstration of this class's application, kindly refer to "/test/case/socket.hpp",
+ *      specifically the socket_listen examples.
+ */
+class Socket_Listen
+{
+private:
+    struct Socket_Wrap m_listen2;
+
+public:
+    Socket_Listen() = delete;
+
+    Socket_Listen(const char* local_ip, const uint16_t& local_port);
+
+    Socket_Listen(const std::string& local_ip, const uint16_t& local_port);
+
+    ~Socket_Listen();
+
+    int Recv(uint8_t* buffer, size_t n, int timeout_ms);
+};

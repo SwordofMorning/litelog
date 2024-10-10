@@ -61,7 +61,7 @@ void Socket_Create_Target(struct sockaddr_in* p_target, const char* p_target_ip,
 int Socket_Send(int device, uint8_t* buffer, size_t n, struct sockaddr* target);
 
 /**
- * @brief Get data from target.
+ * @brief Receive data from target.
  * 
  * @param device socket device.
  * @param buffer receive buffer
@@ -70,7 +70,7 @@ int Socket_Send(int device, uint8_t* buffer, size_t n, struct sockaddr* target);
  * @param timeout_ms timeout parameter.
  * @return int receive size.
  */
-int Socket_Get(int device, uint8_t* buffer, size_t n, struct sockaddr* target, int timeout_ms);
+int Socket_Recv(int device, uint8_t* buffer, size_t n, struct sockaddr* target, int timeout_ms);
 
 /**
  * @brief Close socket and release resources.

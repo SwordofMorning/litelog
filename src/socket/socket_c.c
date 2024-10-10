@@ -76,7 +76,7 @@ int Socket_Send(int device, uint8_t* buffer, size_t n, struct sockaddr* target)
 	return sendto(device, buffer, n, MSG_CONFIRM, target, length);
 }
 
-int Socket_Get(int device, uint8_t* buffer, size_t n, struct sockaddr* target, int timeout_ms)
+int Socket_Recv(int device, uint8_t* buffer, size_t n, struct sockaddr* target, int timeout_ms)
 {
     fd_set rfds;
     struct timeval tv;
@@ -112,7 +112,8 @@ int Socket_Get(int device, uint8_t* buffer, size_t n, struct sockaddr* target, i
 
 void Socket_Exit(struct Socket_Wrap *p_socket)
 {
-    if (p_socket->device != -1) {
+    if (p_socket->device != -1) 
+    {
         close(p_socket->device);
         p_socket->device = -1;
     }
