@@ -28,7 +28,7 @@
  * @note With this configuration, invoking A.Send() will transmit data to B, which can be retrieved using B.Get().
  * @note This elegant design allows for efficient and reliable data exchange between the two endpoints.
  * 
- * @ref You can see the typical usage in "/test/case/socket", 
+ * @ref You can see the typical usage in "/test/case/socket.hpp", socket_p2p_unidirectional and socket_p2p_bidirectional.
  */
 class Socket_P2P
 {
@@ -53,3 +53,4 @@ public:
 
     int Get(uint8_t* buffer, size_t n, int timeout_ms);
 };
+
