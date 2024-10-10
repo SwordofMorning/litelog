@@ -4,6 +4,8 @@ FILE(
     ../src/config/*.cpp
     ../src/socket/*.c
     ../src/socket/*.cpp
+    ../src/buffer/*.c
+    ../src/buffer/*.cpp
     ./*.c
     ./*.hpp
     ./*.cpp

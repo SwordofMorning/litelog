@@ -28,8 +28,7 @@
  * @note With this configuration, invoking A.Send() will transmit data to B, which can be retrieved using B.Get().
  * @note This elegant design allows for efficient and reliable data exchange between the two endpoints.
  * 
- * @ref For a pragmatic demonstration of this class's application, kindly refer to "/test/case/socket.hpp",
- *      specifically the socket_unidirectional and socket_bidirectional examples.
+ * @ref "/test/case/socket/socket.hpp"
  */
 class Socket
 {
@@ -83,8 +82,7 @@ public:
  * @note To illustrate, if the objective is to listen on 127.0.0.1:12345, one need only assign m_listen2 = 127.0.0.1:12345.
  * @note Subsequently, invoking A.Recv() will facilitate the retrieval of incoming data.
  * 
- * @ref For a pragmatic demonstration of this class's application, kindly refer to "/test/case/socket.hpp",
- *      specifically the socket_listen examples.
+ * @ref "/test/case/socket/socket.hpp"
  */
 class Socket_Listen
 {

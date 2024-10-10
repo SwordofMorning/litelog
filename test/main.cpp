@@ -21,7 +21,7 @@ int main()
     RUN_TEST_CASE(socket_unidirectional);
     RUN_TEST_CASE(socket_bidirectional);
     RUN_TEST_CASE(socket_listen);
-    RUN_TEST_CASE(monitor);
+    RUN_TEST_CASE(monitor_and_buf);
 
     printf("[----------] Global test environment tear-down.\n");
     print_test_results();

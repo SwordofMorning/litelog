@@ -7,7 +7,7 @@
 #include <vector>
 #include <iostream>
 
-TEST_CASE(monitor)
+TEST_CASE(monitor_and_buf)
 {
     Buffer buf(200, 200);
 
