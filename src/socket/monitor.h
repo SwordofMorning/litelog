@@ -11,19 +11,20 @@
  * 
  */
 
-#include "socket_p.h"
 #include <string>
 #include <map>
 #include <functional>
 #include <iomanip>
+#include "socket_p.h"
+#include "../buffer/buffer.h"
 
 class Monitor
 {
 private:
     /* ----- Constructors ----- */
 
-    Monitor(const char* listen_ip, const uint16_t& listen_port);
-    Monitor(const std::string& listen_ip, const uint16_t& listen_port);
+    Monitor(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
+    Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
     Monitor() = delete;
     void operator=(const Monitor &) = delete;
     ~Monitor();
@@ -31,14 +32,15 @@ private:
     /* ----- Members ----- */
 
     Socket_Listen m_listen2;
+    Buffer& m_buffer;
     static Monitor *m_monitor;
-    static Monitor *Get_Instance(const char* listen_ip, const uint16_t& listen_port);
-    static Monitor *Get_Instance(const std::string& listen_ip, const uint16_t& listen_port);
+    static Monitor *Get_Instance(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
+    static Monitor *Get_Instance(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
     void operator()();
 
 public:
     // Bind operator() and Get_Instance(), return callable object of class Monitor.
-    static std::function<void()> OBJ(const char* listen_ip, const uint16_t& listen_port);
+    static std::function<void()> OBJ(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
     // Bind operator() and Get_Instance(), return callable object of class Monitor.
-    static std::function<void()> OBJ(const std::string& listen_ip, const uint16_t& listen_port);
+    static std::function<void()> OBJ(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
 };
