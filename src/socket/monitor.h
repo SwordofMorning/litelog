@@ -33,14 +33,21 @@ private:
 
     Socket_Listen m_listen2;
     Buffer& m_buffer;
+    bool m_stop;
+
     static Monitor *m_monitor;
+    static Monitor *Get_Instance();
     static Monitor *Get_Instance(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
     static Monitor *Get_Instance(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
+
     void operator()();
+    void Exit_Loop();
 
 public:
     // Bind operator() and Get_Instance(), return callable object of class Monitor.
-    static std::function<void()> OBJ(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
+    static std::function<void()> Start(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
     // Bind operator() and Get_Instance(), return callable object of class Monitor.
-    static std::function<void()> OBJ(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
+    static std::function<void()> Start(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
+
+    static void Stop();
 };
