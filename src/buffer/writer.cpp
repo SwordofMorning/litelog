@@ -17,11 +17,34 @@ Writer::Writer(const std::string& log_path)
     /* ----- Step 3: Open File ----- */
 
     m_log_file.open(log_file_name, std::ios::out);
+
+    /* ----- Step 4: Litelog Info ----- */
+
+    std::strftime(time_string, sizeof(time_string), "%Y-%m-%d %H:%M:%S", local_time);
+    Init(time_string);
 }
 
 Writer::~Writer()
 {
+    Exit();
     m_log_file.close();
+}
+
+void Writer::Init(const std::string& str_time)
+{
+    Write("===== Litlog Information =====");
+
+    Write(std::string{"[     Branch     ]: "} + __GIT_BRANCH__);
+    Write(std::string{"[      User      ]: "} + __GIT_USER__);
+    Write(std::string{"[ Last Commit ID ]: "} + __GIT_COMMIT_ID__);
+    Write(std::string{"[  Startup time  ]: "} + str_time);
+
+    Write("===== Litlog Set-up =====");
+}
+
+void Writer::Exit()
+{
+    Write("===== Litlog Tear-down =====");
 }
 
 void Writer::Write(const std::string& str)

@@ -28,12 +28,16 @@
 #include <mutex>
 #include <ctime>
 #include <iostream>
+#include "../config/config.h"
 
 class Writer
 {
 private:
     std::ofstream m_log_file;
     std::mutex m_file_mutex;
+
+    void Init(const std::string& str_time);
+    void Exit();
 public:
     Writer(const std::string& log_path);
     ~Writer();
