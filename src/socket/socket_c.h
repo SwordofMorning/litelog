@@ -21,6 +21,7 @@
 #include <sys/wait.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <sys/select.h>
 
 #include "../config/config.h"
 

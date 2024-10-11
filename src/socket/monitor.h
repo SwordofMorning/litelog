@@ -37,6 +37,7 @@ private:
     Socket_Listen m_listen2;
     Buffer& m_buffer;
     bool m_stop_operator;
+    uint8_t m_log_level;
 
     std::string m_current_kernel_time;
     std::string m_current_real_time;

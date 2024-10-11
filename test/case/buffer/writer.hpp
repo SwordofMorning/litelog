@@ -14,14 +14,14 @@ TEST_CASE(writer_write_from_buffer)
     Writer write("/root/Unit");
 
     Socket send_socket(Socket{ "127.0.0.1", 10001, "127.0.0.1", 12345 });
-    uint8_t send_buffer_1[3] = { 'A', 'B', 'C' };
-    uint8_t send_buffer_2[3] = { 'E', 'F', 'G' };
+    uint8_t send_buffer_1[3] = { 'I', 'B', 'C' };
+    uint8_t send_buffer_2[3] = { 'I', 'F', 'G' };
 
-    std::string send_info{"[I][program1] Hello World!"};
-    std::string send_debug{"[D][program1] Here is debug information."};
-    std::string send_warning{"[W][program1] Warning!"};
-    std::string send_error{"[E][program1] Error!"};
-    std::string send_kernel{"[K][kernel] Kernel information"};
+    std::string send_info{"I[program1] Hello World!"};
+    std::string send_debug{"D[program1] Here is debug information."};
+    std::string send_warning{"W[program1] Warning!"};
+    std::string send_error{"E[program1] Error!"};
+    std::string send_kernel{"K[kernel] Kernel information"};
 
     // 发送 uint8_t 数组
     send_socket.Send(send_buffer_1, 3);

@@ -6,6 +6,7 @@ void Monitor::Init()
 {
     m_stop_operator = false;
     m_stop_time_thread = false;
+    m_log_level = LOG_LEVEL_E | LOG_LEVEL_W | LOG_LEVEL_D | LOG_LEVEL_I | LOG_LEVEL_K;
 
     /* Thread: Update time */
 
@@ -63,15 +64,15 @@ void Monitor::operator()()
         ret = m_listen2.Recv(command_buffer, 100, 100);
         if (ret > 0)
         {
-            std::string log(command_buffer, command_buffer + ret);
-            char log_level = log[0];
+            uint8_t log_level = command_buffer[0];
+            std::string log(command_buffer + 1, command_buffer + ret);
 
-            // if (log_level == 'I' || log_level == 'D' || log_level == 'E')
+            if (log_level & m_log_level)
             {
                 std::string log_entry;
                 {
                     std::unique_lock<std::mutex> lock(m_time_mtx);
-                    log_entry = "[" + m_current_kernel_time + "][" + m_current_real_time + "] " + log;
+                    log_entry = "[" + m_current_kernel_time + "][" + m_current_real_time + "][" + static_cast<char>(command_buffer[0]) + "]" + log;
                 }
                 PushLogEntry(std::make_pair(log_id++, log_entry));
             }
