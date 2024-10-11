@@ -4,6 +4,10 @@
 #include "../../../src/buffer/buffer.h"
 #include "../../../src/socket/monitor.h"
 #include "../../utils/utils.h"
+#include <cassert>
+#include <cstdint>
+#include <iostream>
+
 
 TEST_CASE(writer_write_from_buffer)
 {
@@ -13,11 +17,30 @@ TEST_CASE(writer_write_from_buffer)
     uint8_t send_buffer_1[3] = { 'A', 'B', 'C' };
     uint8_t send_buffer_2[3] = { 'E', 'F', 'G' };
 
+    std::string send_info{"[I][program1] Hello World!"};
+    std::string send_debug{"[D][program1] Here is debug information."};
+    std::string send_warning{"[W][program1] Warning!"};
+    std::string send_error{"[E][program1] Error!"};
+    std::string send_kernel{"[K][kernel] Kernel information"};
+
+    // 发送 uint8_t 数组
     send_socket.Send(send_buffer_1, 3);
     send_socket.Send(send_buffer_2, 3);
 
+    // 将 std::string 转换为 uint8_t 数组并发送
+    send_socket.Send(reinterpret_cast<const uint8_t*>(send_info.c_str()), send_info.size());
+    send_socket.Send(reinterpret_cast<const uint8_t*>(send_debug.c_str()), send_debug.size());
+    send_socket.Send(reinterpret_cast<const uint8_t*>(send_warning.c_str()), send_warning.size());
+    send_socket.Send(reinterpret_cast<const uint8_t*>(send_error.c_str()), send_error.size());
+    send_socket.Send(reinterpret_cast<const uint8_t*>(send_kernel.c_str()), send_kernel.size());
+
     sleep(1);
 
-    std::string str = buf.Pull(std::chrono::milliseconds(10));
-    write.Write(str);
+    write.Write(buf.Pull(std::chrono::milliseconds(10)));
+    write.Write(buf.Pull(std::chrono::milliseconds(10)));
+    write.Write(buf.Pull(std::chrono::milliseconds(10)));
+    write.Write(buf.Pull(std::chrono::milliseconds(10)));
+    write.Write(buf.Pull(std::chrono::milliseconds(10)));
+    write.Write(buf.Pull(std::chrono::milliseconds(10)));
+    write.Write(buf.Pull(std::chrono::milliseconds(10)));
 }

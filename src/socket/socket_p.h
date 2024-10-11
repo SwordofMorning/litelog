@@ -61,6 +61,17 @@ public:
     int Send(uint8_t* buffer, size_t n);
 
     /**
+     * @brief Send data to target.
+     * 
+     * @param device socket device.
+     * @param buffer send buffer.
+     * @param n bytes to send.
+     * @param target receive from
+     * @return int send size.
+     */
+    int Send(const uint8_t* buffer, size_t n);
+
+    /**
      * @brief Receive data from m_listen2.
      * 
      * @param buffer receive buffer

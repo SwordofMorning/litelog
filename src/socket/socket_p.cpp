@@ -28,6 +28,11 @@ int Socket::Send(uint8_t* buffer, size_t n)
     return Socket_Send(m_local.device, buffer, n, (sockaddr*)&m_remote);
 }
 
+int Socket::Send(const uint8_t* buffer, size_t n)
+{
+    return Socket_Send(m_local.device, const_cast<uint8_t*>(buffer), n, (sockaddr*)&m_remote);
+}
+
 int Socket::Recv(uint8_t* buffer, size_t n, int timeout_ms)
 {
     return Socket_Recv(m_local.device, buffer, n, (sockaddr*)&m_remote, timeout_ms);
