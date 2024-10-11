@@ -8,6 +8,8 @@ extern "C" {
 
 enum 
 {
+    // Change Log Level
+    LOG_LEVEL_CHANGE = 0,
     // Error
     LOG_LEVEL_E = 1 << 0,
     // Warning

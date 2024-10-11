@@ -61,11 +61,33 @@ TEST_CASE(writer_write_from_buffer)
 
     sleep(1);
 
-    write.Write(buf.Pull(std::chrono::milliseconds(10)));
-    write.Write(buf.Pull(std::chrono::milliseconds(10)));
-    write.Write(buf.Pull(std::chrono::milliseconds(10)));
-    write.Write(buf.Pull(std::chrono::milliseconds(10)));
-    write.Write(buf.Pull(std::chrono::milliseconds(10)));
-    write.Write(buf.Pull(std::chrono::milliseconds(10)));
-    write.Write(buf.Pull(std::chrono::milliseconds(10)));
+    while (!buf.IsL2Empty()) write.Write(buf.Pull(std::chrono::milliseconds(10)));
+
+    // Change log level
+    uint8_t send_change_1[2] = { LOG_LEVEL_CHANGE, LOG_LEVEL_I };
+    send_socket.Send(send_change_1, 2);
+
+    send_socket.Send(info_buffer.data(), info_buffer.size());
+    send_socket.Send(debug_buffer.data(), debug_buffer.size());
+    send_socket.Send(warning_buffer.data(), warning_buffer.size());
+    send_socket.Send(error_buffer.data(), error_buffer.size());
+    send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
+
+    sleep(1);
+
+    while (!buf.IsL2Empty()) write.Write(buf.Pull(std::chrono::milliseconds(10)));
+
+    // Change log level
+    uint8_t send_change_2[2] = { LOG_LEVEL_CHANGE, LOG_LEVEL_K | LOG_LEVEL_D };
+    send_socket.Send(send_change_2, 2);
+
+    send_socket.Send(info_buffer.data(), info_buffer.size());
+    send_socket.Send(debug_buffer.data(), debug_buffer.size());
+    send_socket.Send(warning_buffer.data(), warning_buffer.size());
+    send_socket.Send(error_buffer.data(), error_buffer.size());
+    send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
+
+    sleep(1);
+
+    while (!buf.IsL2Empty()) write.Write(buf.Pull(std::chrono::milliseconds(10)));
 }

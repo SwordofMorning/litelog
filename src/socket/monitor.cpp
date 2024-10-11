@@ -72,8 +72,6 @@ void Monitor::operator()()
             uint8_t log_level = command_buffer[0];
             std::string log(command_buffer + 1, command_buffer + ret);
 
-            printf("log level = %d, symbol = %c\n", log_level, m_log_level_symbol[log_level]);
-
             if (log_level & m_log_level)
             {
                 std::string log_entry;
@@ -83,6 +81,9 @@ void Monitor::operator()()
                 }
                 PushLogEntry(std::make_pair(log_id++, log_entry));
             }
+
+            // log_level == 0 means, change log level to command_buffer[1]
+            if (!log_level) m_log_level = command_buffer[1];
         }
     }
 }
