@@ -15,8 +15,10 @@
 #include <map>
 #include <functional>
 #include <iomanip>
+#include <queue>
 #include "socket_p.h"
 #include "../buffer/buffer.h"
+#include "../utils/threadpool.h"
 
 class Monitor
 {
@@ -51,6 +53,14 @@ private:
 
     void UpdateTime();
     void TimeLoop();
+
+    std::queue<std::string> m_log_queue; // 日志数据队列
+    std::mutex m_queue_mutex; // 队列互斥锁
+    std::condition_variable m_queue_cv; // 队列条件变量
+    std::unique_ptr<ThreadPool> m_thread_pool; // 线程池
+
+    void PushLogEntry(const std::string& log_entry); // 推送日志条目到队列
+    void ProcessLogEntry(); // 处理日志条目的线程函数
 
 public:
     // Bind operator() and Get_Instance(), return callable object of class Monitor.

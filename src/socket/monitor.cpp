@@ -9,7 +9,11 @@ Monitor::Monitor(const char* listen_ip, const uint16_t& listen_port, Buffer& buf
     m_stop_time_thread = false;
     UpdateTime();
     m_time_thread = std::thread(&Monitor::TimeLoop, this);
-
+    m_thread_pool = std::make_unique<ThreadPool>(4); // 创建线程池,设置线程数量
+    for (size_t i = 0; i < 4; ++i)
+    {
+        m_thread_pool->Enqueue(std::bind(&Monitor::ProcessLogEntry, this)); // 将处理日志条目的任务添加到线程池
+    }
 }
 
 Monitor::Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer) :
@@ -19,6 +23,11 @@ Monitor::Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buff
     m_stop_time_thread = false;
     UpdateTime();
     m_time_thread = std::thread(&Monitor::TimeLoop, this);
+    m_thread_pool = std::make_unique<ThreadPool>(4); // 创建线程池,设置线程数量
+    for (size_t i = 0; i < 4; ++i)
+    {
+        m_thread_pool->Enqueue(std::bind(&Monitor::ProcessLogEntry, this)); // 将处理日志条目的任务添加到线程池
+    }
 }
 
 Monitor::~Monitor()
@@ -45,18 +54,23 @@ void Monitor::operator()()
     uint8_t command_buffer[100];
     int ret = 0;
 
-    while (!m_stop_operator) 
+    while (!m_stop_operator)
     {
         ret = m_listen2.Recv(command_buffer, 100, 100);
-        if (ret > 0) 
+        if (ret > 0)
         {
             std::string log(command_buffer, command_buffer + ret);
-            std::string log_entry;
+            char log_level = log[0];
+
+            // if (log_level == 'I' || log_level == 'D' || log_level == 'E')
             {
-                std::unique_lock<std::mutex> lock(m_time_mtx);
-                log_entry = "[" + m_current_kernel_time + "][" + m_current_real_time + "] " + log;
+                std::string log_entry;
+                {
+                    std::unique_lock<std::mutex> lock(m_time_mtx);
+                    log_entry = "[" + m_current_kernel_time + "][" + m_current_real_time + "] " + log;
+                }
+                PushLogEntry(log_entry);
             }
-            m_buffer.Push(log_entry);
         }
     }
 }
@@ -93,6 +107,32 @@ void Monitor::TimeLoop()
             UpdateTime();
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+}
+
+void Monitor::PushLogEntry(const std::string& log_entry)
+{
+    {
+        std::unique_lock<std::mutex> lock(m_queue_mutex);
+        m_log_queue.push(log_entry);
+    }
+    m_queue_cv.notify_one();
+}
+
+void Monitor::ProcessLogEntry()
+{
+    while (true)
+    {
+        std::string log_entry;
+        {
+            std::unique_lock<std::mutex> lock(m_queue_mutex);
+            m_queue_cv.wait(lock, [this] { return !m_log_queue.empty() || m_stop_operator; });
+            if (m_stop_operator && m_log_queue.empty())
+                break;
+            log_entry = m_log_queue.front();
+            m_log_queue.pop();
+        }
+        m_buffer.Push(log_entry);
     }
 }
 

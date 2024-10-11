@@ -6,6 +6,8 @@ FILE(
     ../src/socket/*.cpp
     ../src/buffer/*.c
     ../src/buffer/*.cpp
+    ../src/utils/*.c
+    ../src/utils/*.cpp
     ./*.c
     ./*.hpp
     ./*.cpp
