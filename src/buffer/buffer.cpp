@@ -16,7 +16,7 @@ Buffer::~Buffer()
     transcription_thread.join();
 }
 
-void Buffer::Push(const std::string& log)
+void Buffer::Push(const std::pair<uint64_t, std::string>& log)
 {
     if (use_first_l1)
     {
@@ -46,13 +46,21 @@ void Buffer::Transcription()
         std::unique_lock<std::mutex> l2_lock(l2_mtx, std::defer_lock);
         std::lock(l1_lock, l2_lock);
 
+        std::vector<std::pair<uint64_t, std::string>> temp_buffer;
         while (l1_head_2 != l1_tail_2) 
         {
-            l2_buffer[l2_head] = l1_buffer_2[l1_tail_2];
+            temp_buffer.push_back(l1_buffer_2[l1_tail_2]);
+            l1_tail_2 = (l1_tail_2 + 1) % l1_capacity;
+        }
+
+        std::sort(temp_buffer.begin(), temp_buffer.end());
+
+        for (const auto& entry : temp_buffer)
+        {
+            l2_buffer[l2_head] = entry.second;
             l2_head = (l2_head + 1) % l2_capacity;
             if (l2_head == l2_tail) 
                 l2_tail = (l2_tail + 1) % l2_capacity;
-            l1_tail_2 = (l1_tail_2 + 1) % l1_capacity;
         }
     } 
     else 
@@ -61,13 +69,21 @@ void Buffer::Transcription()
         std::unique_lock<std::mutex> l2_lock(l2_mtx, std::defer_lock);
         std::lock(l1_lock, l2_lock);
 
+        std::vector<std::pair<uint64_t, std::string>> temp_buffer;
         while (l1_head_1 != l1_tail_1) 
         {
-            l2_buffer[l2_head] = l1_buffer_1[l1_tail_1];
+            temp_buffer.push_back(l1_buffer_1[l1_tail_1]);
+            l1_tail_1 = (l1_tail_1 + 1) % l1_capacity;
+        }
+
+        std::sort(temp_buffer.begin(), temp_buffer.end());
+
+        for (const auto& entry : temp_buffer)
+        {
+            l2_buffer[l2_head] = entry.second;
             l2_head = (l2_head + 1) % l2_capacity;
             if (l2_head == l2_tail) 
                 l2_tail = (l2_tail + 1) % l2_capacity;
-            l1_tail_1 = (l1_tail_1 + 1) % l1_capacity;
         }
     }
 

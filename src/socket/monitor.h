@@ -24,7 +24,8 @@ class Monitor
 {
 private:
     /* ----- Constructors ----- */
-
+    
+    void Init();
     Monitor(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
     Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
     Monitor() = delete;
@@ -54,13 +55,13 @@ private:
     void UpdateTime();
     void TimeLoop();
 
-    std::queue<std::string> m_log_queue; // 日志数据队列
-    std::mutex m_queue_mutex; // 队列互斥锁
-    std::condition_variable m_queue_cv; // 队列条件变量
-    std::unique_ptr<ThreadPool> m_thread_pool; // 线程池
+    std::queue<std::pair<uint64_t, std::string>> m_log_queue;
+    std::mutex m_queue_mutex;
+    std::condition_variable m_queue_cv;
+    std::unique_ptr<ThreadPool> m_thread_pool;
 
-    void PushLogEntry(const std::string& log_entry); // 推送日志条目到队列
-    void ProcessLogEntry(); // 处理日志条目的线程函数
+    void PushLogEntry(const std::pair<uint64_t, std::string>& log_entry);
+    void ProcessLogEntry();
 
 public:
     // Bind operator() and Get_Instance(), return callable object of class Monitor.

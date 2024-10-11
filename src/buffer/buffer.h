@@ -7,6 +7,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <iostream>
+#include <algorithm>
 
 /**
  * @brief A sophisticated Log Buffer Management System designed to optimize data flow and ensure thread safety.
@@ -28,8 +29,8 @@
 class Buffer 
 {
 private:
-    std::vector<std::string> l1_buffer_1;
-    std::vector<std::string> l1_buffer_2;
+    std::vector<std::pair<uint64_t, std::string>> l1_buffer_1;
+    std::vector<std::pair<uint64_t, std::string>> l1_buffer_2;
     std::vector<std::string> l2_buffer;
     size_t l1_capacity;
     size_t l2_capacity;
@@ -53,7 +54,7 @@ public:
 
     ~Buffer();
 
-    void Push(const std::string& log);
+    void Push(const std::pair<uint64_t, std::string>& log);
 
     void Transcription();
 

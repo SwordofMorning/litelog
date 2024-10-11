@@ -28,6 +28,13 @@
 extern "C" {
 #endif
 
+struct Socket_Wrap {
+    // socket device.
+    int device;
+    // this socket's ip and port.
+    struct sockaddr_in self_address;
+};
+
 /**
  * @brief Init socket device.
  * 
