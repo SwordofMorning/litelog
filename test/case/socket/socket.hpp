@@ -47,8 +47,8 @@ TEST_CASE(socket_bidirectional)
 
 TEST_CASE(socket_listen)
 {
-    Socket_Listen recv_socket("127.0.0.1", 12345);
-    Socket send_socket("127.0.0.1", 54321, "127.0.0.1", 12345);
+    Socket_Listen recv_socket("127.0.0.1", 10000);
+    Socket send_socket("127.0.0.1", 10001, "127.0.0.1", 10000);
 
     uint8_t send_buffer[3] = { 0x00, 0x01, 0x02 };
     uint8_t recv_buffer[3];

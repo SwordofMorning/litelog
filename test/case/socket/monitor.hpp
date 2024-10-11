@@ -9,11 +9,7 @@
 
 TEST_CASE(monitor_and_buf)
 {
-    Buffer buf(200, 200);
-
-    std::thread monitor{ Monitor::Start("127.0.0.1", 10000, buf) };
-
-    Socket send_socket(Socket{ "127.0.0.1", 10001, "127.0.0.1", 10000 });
+    Socket send_socket(Socket{ "127.0.0.1", 10001, "127.0.0.1", 12345 });
     uint8_t send_buffer_1[3] = { 'A', 'B', 'C' };
     uint8_t send_buffer_2[3] = { 'E', 'F', 'G' };
     uint8_t recv_buffer[3];
@@ -25,8 +21,10 @@ TEST_CASE(monitor_and_buf)
 
     sleep(1);
 
-    EXPECT_STR_EQ(exp_1.c_str(), buf.Pull(std::chrono::milliseconds(10)).c_str());
-    EXPECT_STR_EQ(exp_2.c_str(), buf.Pull(std::chrono::milliseconds(10)).c_str());
+    std::string str(buf.Pull(std::chrono::milliseconds(10)));
+    EXPECT_STR_EQ(exp_1.c_str(), str.substr(str.size() - 3).c_str());
+    str = buf.Pull(std::chrono::milliseconds(10));
+    EXPECT_STR_EQ(exp_2.c_str(), str.substr(str.size() - 3).c_str());
 
     send_socket.Send(send_buffer_1, 3);
     send_socket.Send(send_buffer_2, 3);
@@ -34,10 +32,10 @@ TEST_CASE(monitor_and_buf)
 
     sleep(1);
 
-    EXPECT_STR_EQ(exp_1.c_str(), buf.Pull(std::chrono::milliseconds(10)).c_str());
-    EXPECT_STR_EQ(exp_2.c_str(), buf.Pull(std::chrono::milliseconds(10)).c_str());
-    EXPECT_STR_EQ(exp_1.c_str(), buf.Pull(std::chrono::milliseconds(10)).c_str());
-
-    Monitor::Stop();
-    monitor.join();
+    str = buf.Pull(std::chrono::milliseconds(10));
+    EXPECT_STR_EQ(exp_1.c_str(), str.substr(str.size() - 3).c_str());
+    str = buf.Pull(std::chrono::milliseconds(10));
+    EXPECT_STR_EQ(exp_2.c_str(), str.substr(str.size() - 3).c_str());
+    str = buf.Pull(std::chrono::milliseconds(10));
+    EXPECT_STR_EQ(exp_1.c_str(), str.substr(str.size() - 3).c_str());
 }

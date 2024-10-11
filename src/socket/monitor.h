@@ -33,7 +33,13 @@ private:
 
     Socket_Listen m_listen2;
     Buffer& m_buffer;
-    bool m_stop;
+    bool m_stop_operator;
+
+    std::string m_current_kernel_time;
+    std::string m_current_real_time;
+    std::thread m_time_thread;
+    bool m_stop_time_thread;
+    std::mutex m_time_mtx;
 
     static Monitor *m_monitor;
     static Monitor *Get_Instance();
@@ -42,6 +48,9 @@ private:
 
     void operator()();
     void Exit_Loop();
+
+    void UpdateTime();
+    void TimeLoop();
 
 public:
     // Bind operator() and Get_Instance(), return callable object of class Monitor.

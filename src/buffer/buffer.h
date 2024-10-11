@@ -6,6 +6,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <iostream>
 
 /**
  * @brief A sophisticated Log Buffer Management System designed to optimize data flow and ensure thread safety.
