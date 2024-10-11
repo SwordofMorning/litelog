@@ -7,6 +7,11 @@ void Monitor::Init()
     m_stop_operator = false;
     m_stop_time_thread = false;
     m_log_level = LOG_LEVEL_E | LOG_LEVEL_W | LOG_LEVEL_D | LOG_LEVEL_I | LOG_LEVEL_K;
+    m_log_level_symbol[LOG_LEVEL_E] = 'E';
+    m_log_level_symbol[LOG_LEVEL_W] = 'W';
+    m_log_level_symbol[LOG_LEVEL_D] = 'D';
+    m_log_level_symbol[LOG_LEVEL_I] = 'I';
+    m_log_level_symbol[LOG_LEVEL_K] = 'K';
 
     /* Thread: Update time */
 
@@ -67,12 +72,14 @@ void Monitor::operator()()
             uint8_t log_level = command_buffer[0];
             std::string log(command_buffer + 1, command_buffer + ret);
 
+            printf("log level = %d, symbol = %c\n", log_level, m_log_level_symbol[log_level]);
+
             if (log_level & m_log_level)
             {
                 std::string log_entry;
                 {
                     std::unique_lock<std::mutex> lock(m_time_mtx);
-                    log_entry = "[" + m_current_kernel_time + "][" + m_current_real_time + "][" + static_cast<char>(command_buffer[0]) + "]" + log;
+                    log_entry = "[" + m_current_kernel_time + "][" + m_current_real_time + "][" + m_log_level_symbol[log_level] + "]" + log;
                 }
                 PushLogEntry(std::make_pair(log_id++, log_entry));
             }

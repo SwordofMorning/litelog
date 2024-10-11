@@ -10,8 +10,8 @@
 TEST_CASE(monitor_and_buf)
 {
     Socket send_socket(Socket{ "127.0.0.1", 10001, "127.0.0.1", 12345 });
-    uint8_t send_buffer_1[3] = { 'I', 'B', 'C' };
-    uint8_t send_buffer_2[3] = { 'I', 'F', 'G' };
+    uint8_t send_buffer_1[3] = { 0x01, 'B', 'C' };
+    uint8_t send_buffer_2[3] = { 0x02, 'F', 'G' };
     uint8_t recv_buffer[3];
     std::string exp_1 = "BC";
     std::string exp_2 = "FG";

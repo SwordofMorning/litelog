@@ -38,6 +38,7 @@ private:
     Buffer& m_buffer;
     bool m_stop_operator;
     uint8_t m_log_level;
+    std::map<uint8_t, char> m_log_level_symbol;
 
     std::string m_current_kernel_time;
     std::string m_current_real_time;

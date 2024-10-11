@@ -14,25 +14,50 @@ TEST_CASE(writer_write_from_buffer)
     Writer write("/root/Unit");
 
     Socket send_socket(Socket{ "127.0.0.1", 10001, "127.0.0.1", 12345 });
-    uint8_t send_buffer_1[3] = { 'I', 'B', 'C' };
-    uint8_t send_buffer_2[3] = { 'I', 'F', 'G' };
+    uint8_t send_buffer_1[3] = { 0x04, 'B', 'C' };
+    uint8_t send_buffer_2[3] = { 0x08, 'F', 'G' };
 
-    std::string send_info{"I[program1] Hello World!"};
-    std::string send_debug{"D[program1] Here is debug information."};
-    std::string send_warning{"W[program1] Warning!"};
-    std::string send_error{"E[program1] Error!"};
-    std::string send_kernel{"K[kernel] Kernel information"};
+    // [0] = 1
+    std::string send_error{"[program1] Error!"};
+    // [0] = 2
+    std::string send_warning{"[program1] Warning!"};
+    // [0] = 4
+    std::string send_debug{"[program1] Here is debug information."};
+    // [0] = 8
+    std::string send_info{"[program1] Hello World!"};
+    // [0] = 16
+    std::string send_kernel{"[kernel] Kernel information"};
 
-    // 发送 uint8_t 数组
+    // Sent uint8_t
     send_socket.Send(send_buffer_1, 3);
     send_socket.Send(send_buffer_2, 3);
 
-    // 将 std::string 转换为 uint8_t 数组并发送
-    send_socket.Send(reinterpret_cast<const uint8_t*>(send_info.c_str()), send_info.size());
-    send_socket.Send(reinterpret_cast<const uint8_t*>(send_debug.c_str()), send_debug.size());
-    send_socket.Send(reinterpret_cast<const uint8_t*>(send_warning.c_str()), send_warning.size());
-    send_socket.Send(reinterpret_cast<const uint8_t*>(send_error.c_str()), send_error.size());
-    send_socket.Send(reinterpret_cast<const uint8_t*>(send_kernel.c_str()), send_kernel.size());
+    // Send string with cast
+
+    std::vector<uint8_t> info_buffer(send_info.size() + 1);
+    info_buffer[0] = 0x08;
+    std::copy(send_info.begin(), send_info.end(), info_buffer.begin() + 1);
+    send_socket.Send(info_buffer.data(), info_buffer.size());
+
+    std::vector<uint8_t> debug_buffer(send_debug.size() + 1);
+    debug_buffer[0] = 0x04;
+    std::copy(send_debug.begin(), send_debug.end(), debug_buffer.begin() + 1);
+    send_socket.Send(debug_buffer.data(), debug_buffer.size());
+
+    std::vector<uint8_t> warning_buffer(send_warning.size() + 1);
+    warning_buffer[0] = 0x02;
+    std::copy(send_warning.begin(), send_warning.end(), warning_buffer.begin() + 1);
+    send_socket.Send(warning_buffer.data(), warning_buffer.size());
+
+    std::vector<uint8_t> error_buffer(send_error.size() + 1);
+    error_buffer[0] = 0x01;
+    std::copy(send_error.begin(), send_error.end(), error_buffer.begin() + 1);
+    send_socket.Send(error_buffer.data(), error_buffer.size());
+
+    std::vector<uint8_t> kernel_buffer(send_kernel.size() + 1);
+    kernel_buffer[0] = 0x10;
+    std::copy(send_kernel.begin(), send_kernel.end(), kernel_buffer.begin() + 1);
+    send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
 
     sleep(1);
 
