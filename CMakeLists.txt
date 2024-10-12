@@ -14,8 +14,8 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -O3 -lrt -pthread")
 
 # ===== Setp 3 : Set Application Name =====
 
-SET(APP_NAME "Litelog")
-SET(TEST_NAME "Litelog_Test")
+SET(APP_NAME "litelog")
+SET(TEST_NAME "litelog_test")
 
 # ===== Setp 4 : Add Subdirectory =====
 
