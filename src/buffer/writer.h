@@ -28,20 +28,33 @@
 #include <mutex>
 #include <ctime>
 #include <iostream>
+#include <functional>
 #include "../config/config.h"
+#include "buffer.h"
 
 class Writer
 {
 private:
+    Writer(const std::string& log_path, Buffer& buffer);
+    ~Writer();
+
     std::ofstream m_log_file;
     std::mutex m_file_mutex;
+
+    Buffer& m_buffer;
+    std::mutex m_write_mutex;
+    bool m_stop_write;
 
     void Init(const std::string& str_time);
     void Exit();
 
-public:
-    Writer(const std::string& log_path);
-    ~Writer();
+    static Writer* m_writer;
+    static Writer* Get_Instance(const std::string& log_path, Buffer& buffer);
 
     void Write(const std::string& str);
+    void operator()();
+
+public:
+    static std::function<void()> Start(const std::string& log_path, Buffer& buffer);
+    static void Stop();
 };
