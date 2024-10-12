@@ -4,10 +4,10 @@
 #include <time.h>
 #include <sys/sysinfo.h>
 #include <stdarg.h>
-#include <stdio.h>  
-#include <stdlib.h>  
-#include <string.h>  
-#include <assert.h>  
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -38,6 +38,7 @@ private:
 
     void Init(const std::string& str_time);
     void Exit();
+
 public:
     Writer(const std::string& log_path);
     ~Writer();

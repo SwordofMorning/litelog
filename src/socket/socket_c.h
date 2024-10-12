@@ -29,7 +29,8 @@
 extern "C" {
 #endif
 
-struct Socket_Wrap {
+struct Socket_Wrap
+{
     // socket device.
     int device;
     // this socket's ip and port.
@@ -44,7 +45,7 @@ struct Socket_Wrap {
  * @param p_self_port socket's port.
  * @return int 
  */
-int Socket_Init(struct Socket_Wrap *p_socket, const char* p_self_ip, uint16_t p_self_port);
+int Socket_Init(struct Socket_Wrap* p_socket, const char* p_self_ip, uint16_t p_self_port);
 
 /**
  * @brief Create Socket link target.
@@ -89,7 +90,7 @@ int Socket_Recv(int device, uint8_t* buffer, size_t n, struct sockaddr* target, 
  * 
  * @param p_socket which socket will be closed.
  */
-void Socket_Exit(struct Socket_Wrap *p_socket);
+void Socket_Exit(struct Socket_Wrap* p_socket);
 
 #ifdef __cplusplus
 }

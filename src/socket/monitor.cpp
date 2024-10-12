@@ -1,6 +1,6 @@
 #include "monitor.h"
 
-Monitor* Monitor::m_monitor= nullptr;
+Monitor* Monitor::m_monitor = nullptr;
 
 void Monitor::Init()
 {
@@ -27,35 +27,42 @@ void Monitor::Init()
     }
 }
 
-Monitor::Monitor(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer) :
-    m_listen2(listen_ip, listen_port), m_buffer(buffer)
+Monitor::Monitor(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer)
+    : m_listen2(listen_ip, listen_port)
+    , m_buffer(buffer)
 {
     this->Init();
 }
 
-Monitor::Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer) :
-    m_listen2(listen_ip, listen_port), m_buffer(buffer)
+Monitor::Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer)
+    : m_listen2(listen_ip, listen_port)
+    , m_buffer(buffer)
 {
     this->Init();
 }
 
 Monitor::~Monitor()
 {
-    if (m_monitor) delete m_monitor;
+    if (m_monitor)
+        delete m_monitor;
 }
 
-Monitor *Monitor::Get_Instance(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer)
+Monitor* Monitor::Get_Instance(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer)
 {
+    // clang-format off
     return m_monitor == nullptr ? 
         (m_monitor = new Monitor(listen_ip, listen_port, buffer)) : 
         m_monitor;
+    // clang-format on
 }
 
-Monitor *Monitor::Get_Instance(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer)
+Monitor* Monitor::Get_Instance(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer)
 {
+    // clang-format off
     return m_monitor == nullptr ? 
         (m_monitor = new Monitor(listen_ip, listen_port, buffer)) : 
         m_monitor;
+    // clang-format on
 }
 
 void Monitor::operator()()
@@ -83,12 +90,13 @@ void Monitor::operator()()
             }
 
             // log_level == 0 means, change log level to command_buffer[1]
-            if (!log_level) m_log_level = command_buffer[1];
+            if (!log_level)
+                m_log_level = command_buffer[1];
         }
     }
 }
 
-void Monitor::UpdateTime() 
+void Monitor::UpdateTime()
 {
     // Get kernel time
     struct timespec kernel_time;
@@ -110,9 +118,9 @@ void Monitor::UpdateTime()
     m_current_real_time = real_time_str;
 }
 
-void Monitor::TimeLoop() 
+void Monitor::TimeLoop()
 {
-    while (!m_stop_time_thread) 
+    while (!m_stop_time_thread)
     {
         // Shorten the duration of mutex
         {
@@ -139,7 +147,9 @@ void Monitor::ProcessLogEntry()
         std::pair<uint64_t, std::string> log_entry;
         {
             std::unique_lock<std::mutex> lock(m_queue_mutex);
-            m_queue_cv.wait(lock, [this] { return !m_log_queue.empty() || m_stop_operator; });
+            m_queue_cv.wait(lock, [this] {
+                return !m_log_queue.empty() || m_stop_operator;
+            });
             if (m_stop_operator && m_log_queue.empty())
                 break;
             log_entry = m_log_queue.front();

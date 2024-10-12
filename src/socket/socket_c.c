@@ -8,7 +8,7 @@
  * @retval 0, success.
  * @retval -1, socket open device fail.
  */
-static int Socket_Open_Device(struct Socket_Wrap *p_socket)
+static int Socket_Open_Device(struct Socket_Wrap* p_socket)
 {
     p_socket->device = socket(AF_INET, SOCK_DGRAM, 0);
     
@@ -23,7 +23,7 @@ static int Socket_Open_Device(struct Socket_Wrap *p_socket)
  * @param p_self_port port of itself.
  * @return int 
  */
-static int Socket_Bind_Target(struct Socket_Wrap *p_socket, const char* p_self_ip, uint16_t p_self_port)
+static int Socket_Bind_Target(struct Socket_Wrap* p_socket, const char* p_self_ip, uint16_t p_self_port)
 {
     int retval = 0;
 
@@ -33,7 +33,7 @@ static int Socket_Bind_Target(struct Socket_Wrap *p_socket, const char* p_self_i
 
     socklen_t slen = sizeof(p_socket->self_address);
 
-    if (-1 == bind(p_socket->device, (struct sockaddr *)&(p_socket->self_address), slen))
+    if (-1 == bind(p_socket->device, (struct sockaddr*)&(p_socket->self_address), slen))
     {   
         perror("bind fail");
         close(p_socket->device);
@@ -43,7 +43,7 @@ static int Socket_Bind_Target(struct Socket_Wrap *p_socket, const char* p_self_i
     return retval;
 }
 
-int Socket_Init(struct Socket_Wrap *p_socket, const char* p_self_ip, uint16_t p_self_port)
+int Socket_Init(struct Socket_Wrap* p_socket, const char* p_self_ip, uint16_t p_self_port)
 {
     int retval = 0;
 
@@ -110,11 +110,11 @@ int Socket_Recv(int device, uint8_t* buffer, size_t n, struct sockaddr* target, 
     else 
     {
         socklen_t length = sizeof(*target);
-        return recvfrom(device, (char *)buffer, n, MSG_WAITALL, target, &length);
+        return recvfrom(device, (char*)buffer, n, MSG_WAITALL, target, &length);
     }
 }
 
-void Socket_Exit(struct Socket_Wrap *p_socket)
+void Socket_Exit(struct Socket_Wrap* p_socket)
 {
     if (p_socket->device != -1) 
     {

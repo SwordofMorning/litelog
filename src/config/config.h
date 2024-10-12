@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-enum 
+enum
 {
     // Change Log Level
     LOG_LEVEL_CHANGE = 0,

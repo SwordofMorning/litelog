@@ -1,7 +1,6 @@
 #include "socket_p.h"
 
-Socket::Socket(const char* local_ip, const uint16_t& local_port, 
-        const char* target_ip, const uint16_t& target_port)
+Socket::Socket(const char* local_ip, const uint16_t& local_port, const char* target_ip, const uint16_t& target_port)
 {
     // Init local socket.
     Socket_Init(&m_local, local_ip, local_port);
@@ -9,8 +8,7 @@ Socket::Socket(const char* local_ip, const uint16_t& local_port,
     Socket_Create_Target(&m_remote, target_ip, target_port);
 }
 
-Socket::Socket(const std::string& local_ip, const uint16_t& local_port, 
-        const std::string& target_ip, const uint16_t& target_port)
+Socket::Socket(const std::string& local_ip, const uint16_t& local_port, const std::string& target_ip, const uint16_t& target_port)
 {
     // Init local socket.
     Socket_Init(&m_local, local_ip.c_str(), local_port);

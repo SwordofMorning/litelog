@@ -24,12 +24,12 @@ class Monitor
 {
 private:
     /* ----- Constructors ----- */
-    
+
     void Init();
     Monitor(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
     Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
     Monitor() = delete;
-    void operator=(const Monitor &) = delete;
+    void operator=(const Monitor&) = delete;
     ~Monitor();
 
     /* ----- Members ----- */
@@ -46,10 +46,10 @@ private:
     bool m_stop_time_thread;
     std::mutex m_time_mtx;
 
-    static Monitor *m_monitor;
-    static Monitor *Get_Instance();
-    static Monitor *Get_Instance(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
-    static Monitor *Get_Instance(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
+    static Monitor* m_monitor;
+    static Monitor* Get_Instance();
+    static Monitor* Get_Instance(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
+    static Monitor* Get_Instance(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
 
     void operator()();
     void Exit_Loop();

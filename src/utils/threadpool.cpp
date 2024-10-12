@@ -1,6 +1,7 @@
 #include "threadpool.h"
 
-ThreadPool::ThreadPool(size_t num_threads) : m_stop(false)
+ThreadPool::ThreadPool(size_t num_threads)
+    : m_stop(false)
 {
     for (size_t i = 0; i < num_threads; ++i)
     {
@@ -10,7 +11,9 @@ ThreadPool::ThreadPool(size_t num_threads) : m_stop(false)
                 std::function<void()> task;
                 {
                     std::unique_lock<std::mutex> lock(m_mutex);
-                    m_cv.wait(lock, [this] { return m_stop || !m_tasks.empty(); });
+                    m_cv.wait(lock, [this] {
+                        return m_stop || !m_tasks.empty();
+                    });
                     if (m_stop && m_tasks.empty())
                         return;
                     task = std::move(m_tasks.front());

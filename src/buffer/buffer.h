@@ -26,7 +26,7 @@
  * 
  * @ref "/test/case/socket/monitor.hpp"
  */
-class Buffer 
+class Buffer
 {
 private:
     std::vector<std::pair<uint64_t, std::string>> l1_buffer_1;

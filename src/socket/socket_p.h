@@ -41,11 +41,13 @@ private:
 public:
     Socket() = delete;
 
-    Socket(const char* local_ip, const uint16_t& local_port, 
+    // clang-format off
+    Socket(const char* local_ip, const uint16_t& local_port,
         const char* target_ip, const uint16_t& target_port);
 
     Socket(const std::string& local_ip, const uint16_t& local_port, 
         const std::string& target_ip, const uint16_t& target_port);
+    // clang-format on
 
     ~Socket();
 

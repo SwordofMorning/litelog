@@ -18,7 +18,7 @@ int main()
     Version();
 
     printf("[==========] Test Begin.\n");
-    std::thread monitor{ Monitor::Start("127.0.0.1", 12345, buf) };
+    std::thread monitor{Monitor::Start("127.0.0.1", 12345, buf)};
     printf("[----------] Global test environment set-up.\n");
 
     RUN_TEST_CASE(socket_unidirectional);
