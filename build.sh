@@ -90,8 +90,8 @@ function func_clean()
 # help
 function func_help()
 {
-    echo_info "(no parameters)          -- clean, create output path, cmake, make"
-    echo_info "[all]                    -- create output path, camke, make"
+    echo_info "(no parameters)          -- create output path, cmake, make"
+    echo_info "[all]                    -- clean, create output path, camke, make"
     echo_info "[clean]                  -- rm output path"
     echo_info "[help]                   -- show helps"
 }
@@ -99,6 +99,7 @@ function func_help()
 function func_map()
 {
     if [[ $1 == 'all' ]]; then
+        func_clean
         func_dir
         func_all
     elif [[ $1 == "clean" ]]; then
@@ -106,7 +107,6 @@ function func_map()
     elif [[ $1 == "help" ]]; then
         func_help
     elif [[ -z $1 ]]; then
-        func_clean
         func_dir
         func_all
     else
