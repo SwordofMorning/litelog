@@ -1,6 +1,6 @@
 #include "writer.h"
 
-Writer* Writer::m_writer = nullptr;
+std::unique_ptr<Writer, std::function<void(Writer*)>> Writer::m_writer = nullptr;
 
 Writer::Writer(const std::string& log_path, Buffer& buffer)
     : m_buffer(buffer)
@@ -74,18 +74,19 @@ void Writer::operator()()
     }
 }
 
-Writer* Writer::Get_Instance(const std::string& log_path, Buffer& buffer)
+std::unique_ptr<Writer, std::function<void(Writer*)>>& Writer::Get_Instance(const std::string& log_path, Buffer& buffer)
 {
     // clang-format off
-    return m_writer == nullptr ? 
-        (m_writer = new Writer(log_path, buffer)) : 
-        m_writer;
+    if (!m_writer)
+        m_writer = std::unique_ptr<Writer, std::function<void(Writer*)>>
+            (new Writer(log_path, buffer), [](Writer* writer) { delete writer; });
+    return m_writer;
     // clang-format on
 }
 
 std::function<void()> Writer::Start(const std::string& log_path, Buffer& buffer)
 {
-    return std::bind(&Writer::operator(), Writer::Get_Instance(log_path, buffer));
+    return std::bind(&Writer::operator(), &(*Writer::Get_Instance(log_path, buffer)));
 }
 
 void Writer::Stop()

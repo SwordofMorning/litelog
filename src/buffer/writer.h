@@ -48,8 +48,9 @@ private:
     void Init(const std::string& str_time);
     void Exit();
 
-    static Writer* m_writer;
-    static Writer* Get_Instance(const std::string& log_path, Buffer& buffer);
+    static std::unique_ptr<Writer, std::function<void(Writer*)>> m_writer;
+    static std::unique_ptr<Writer, std::function<void(Writer*)>>& Get_Instance(const std::string& log_path, Buffer& buffer);
+    friend class std::default_delete<Writer>;
 
     void Write(const std::string& str);
     void operator()();
