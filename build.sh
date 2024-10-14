@@ -22,21 +22,25 @@ function echo_info()
 #################### Section 2 : Project Setting ####################
 
 # Project Default Parameters
-BuildPath="./build"
+BuildPath="build"
 
 ProjectPath=$(cd $(dirname $0);pwd)
 ScriptEchoLabel="Build.sh: "
 
-#################### Section 3 : Build Project ####################
+#################### Section 3 : Functions ####################
 
 # if no BuildPath, then Create
-if [ ! -d "$BuildPath" ]; then
-    mkdir -p "$BuildPath"
-    echo_info "Create Build Path: $BuildPath"
-fi
+function func_dir()
+{
+    cd ${ProjectPath}
+    if [ ! -d "$BuildPath" ]; then
+        mkdir -p "$BuildPath"
+        echo_info "Create Build Path: $BuildPath"
+    fi
+}
 
 # camke ..
-function run_cmake()
+function func_cmake()
 {
     echo_info "cmake .."
     if cmake ..; then
@@ -48,7 +52,7 @@ function run_cmake()
 }
 
 # make
-function run_make() 
+function func_make() 
 {
     echo_info "make -j12"
     if make -j12; then
@@ -59,15 +63,65 @@ function run_make()
     fi
 }
 
-#################### Section 4 : Main ####################
-
-function main() 
+function func_all
 {
-    echo_info "PWD is: ${ProjectPath}"
-    cd "$BuildPath"
-    run_cmake
-    run_make
+    cd ${BuildPath}
+    func_cmake
+    func_make
 }
 
-# run main
-main
+# clean
+function func_clean()
+{
+    echo_info "clean"
+    if [[ -d "${ProjectPath}/${BuildPath}" ]]; then
+        rm -r "${ProjectPath}/${BuildPath}"
+        if [[ $? -eq 0 ]]; then
+            echo_info "Clean Success."
+        else
+            echo_error "Clean Fail."
+            exit 1
+        fi
+    else
+        echo_info "Directory ${ProjectPath}/${BuildPath} does not exist."
+    fi
+}
+
+# help
+function func_help()
+{
+    echo_info "(no parameters)          -- clean, create output path, cmake, make"
+    echo_info "[all]                    -- create output path, camke, make"
+    echo_info "[clean]                  -- rm output path"
+    echo_info "[help]                   -- show helps"
+}
+
+function func_map()
+{
+    if [[ $1 == 'all' ]]; then
+        func_dir
+        func_all
+    elif [[ $1 == "clean" ]]; then
+        func_clean
+    elif [[ $1 == "help" ]]; then
+        func_help
+    elif [[ -z $1 ]]; then
+        func_clean
+        func_dir
+        func_all
+    else
+        func_help
+    fi
+}
+
+#################### Section 4 : Main ####################
+
+function main()
+{
+    echo_info "PWD: ${ProjectPath}"
+    echo_info "Output: ${ProjectPath}/${BuildPath}"
+
+    func_map ${1}
+}
+
+main $1
