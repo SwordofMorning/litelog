@@ -57,7 +57,7 @@ TEST_CASE(writer_write_from_buffer)
     std::copy(send_kernel.begin(), send_kernel.end(), kernel_buffer.begin() + 1);
     send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
 
-    std::thread writer{Writer::Start("/root/Unit", buf)};
+    std::thread writer{Writer::Start("/root/Unit", buf, 10)};
 
     sleep(1);
 
@@ -77,11 +77,19 @@ TEST_CASE(writer_write_from_buffer)
     uint8_t send_change_2[2] = { LOG_CTL_LEVEL_CHANGE, LOG_LEVEL_K | LOG_LEVEL_D };
     send_socket.Send(send_change_2, 2);
 
-    send_socket.Send(info_buffer.data(), info_buffer.size());
-    send_socket.Send(debug_buffer.data(), debug_buffer.size());
-    send_socket.Send(warning_buffer.data(), warning_buffer.size());
-    send_socket.Send(error_buffer.data(), error_buffer.size());
-    send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
+    uint8_t loop_buffer[3] = { LOG_LEVEL_K, ' ', ' ' };
+    for (int i = 0; i < 10; ++i)
+    {
+        send_socket.Send(info_buffer.data(), info_buffer.size());
+        send_socket.Send(debug_buffer.data(), debug_buffer.size());
+        send_socket.Send(warning_buffer.data(), warning_buffer.size());
+        send_socket.Send(error_buffer.data(), error_buffer.size());
+        send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
+        loop_buffer[2] = i + '0';
+        send_socket.Send(loop_buffer, 3);
+    }
+
+    sleep(1);
 
     Writer::Stop();
     writer.join();

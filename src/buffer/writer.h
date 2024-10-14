@@ -29,13 +29,14 @@
 #include <ctime>
 #include <iostream>
 #include <functional>
+#include <atomic>
 #include "../config/config.h"
 #include "buffer.h"
 
 class Writer
 {
 private:
-    Writer(const std::string& log_path, Buffer& buffer);
+    Writer(const std::string& log_path, Buffer& buffer, size_t max_log_lines);
     ~Writer();
 
     std::ofstream m_log_file;
@@ -43,19 +44,23 @@ private:
 
     Buffer& m_buffer;
     std::mutex m_write_mutex;
-    bool m_stop_write;
+    std::atomic<bool> m_stop_write;
+    size_t m_max_log_lines;
+    std::string m_log_path;
+    std::atomic<size_t> m_lines_written;
 
-    void Init(const std::string& str_time);
+    void Init();
     void Exit();
+    void Info(const std::string& str_time);
 
     static std::unique_ptr<Writer, std::function<void(Writer*)>> m_writer;
-    static std::unique_ptr<Writer, std::function<void(Writer*)>>& Get_Instance(const std::string& log_path, Buffer& buffer);
     friend class std::default_delete<Writer>;
 
     void Write(const std::string& str);
     void operator()();
 
 public:
-    static std::function<void()> Start(const std::string& log_path, Buffer& buffer);
+    static std::function<void()> Start(const std::string& log_path, Buffer& buffer, size_t max_log_lines);
     static void Stop();
+    void Switch();
 };
