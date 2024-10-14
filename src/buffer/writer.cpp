@@ -5,7 +5,7 @@ std::unique_ptr<Writer, std::function<void(Writer*)>> Writer::m_writer = nullptr
 Writer::Writer(const std::string& log_path, Buffer& buffer, size_t max_log_lines)
     : m_buffer(buffer)
     , m_stop_write(false)
-    , m_max_log_lines(max_log_lines) 
+    , m_max_log_lines(max_log_lines)
     , m_log_path(log_path)
 {
     Init();
@@ -95,7 +95,7 @@ std::function<void()> Writer::Start(const std::string& log_path, Buffer& buffer,
     if (!m_writer)
         m_writer = std::unique_ptr<Writer, std::function<void(Writer*)>>
             (new Writer(log_path, buffer, max_log_lines), [](Writer* writer) { delete writer; });
-    return std::bind(&Writer::operator(), &(*m_writer)); 
+    return std::bind(&Writer::operator(), &(*m_writer));
     // clang-format on
 }
 
