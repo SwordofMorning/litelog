@@ -76,9 +76,19 @@ void Monitor::operator()()
         ret = m_listen2.Recv(command_buffer, 100, 100);
         if (ret > 0)
         {
+            if (command_buffer[0] == LOG_CTL_LEVEL_CHANGE)
+            {
+                m_log_level = command_buffer[1];
+                continue;
+            }
+            else if (command_buffer[0] == LOG_CTL_EXIT)
+            {
+                Monitor::Stop();
+                break;
+            }
+
             uint8_t log_level = command_buffer[0];
             std::string log(command_buffer + 1, command_buffer + ret);
-
             if (log_level & m_log_level)
             {
                 std::string log_entry;
@@ -88,10 +98,6 @@ void Monitor::operator()()
                 }
                 PushLogEntry(std::make_pair(log_id++, log_entry));
             }
-
-            // log_level == 0 means, change log level to command_buffer[1]
-            if (!log_level)
-                m_log_level = command_buffer[1];
         }
     }
 }

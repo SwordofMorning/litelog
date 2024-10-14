@@ -11,8 +11,6 @@
 
 TEST_CASE(writer_write_from_buffer)
 {
-    Writer write("/root/Unit");
-
     Socket send_socket(Socket{ "127.0.0.1", 10001, "127.0.0.1", 12345 });
     uint8_t send_buffer_1[3] = { 0x04, 'B', 'C' };
     uint8_t send_buffer_2[3] = { 0x08, 'F', 'G' };
@@ -59,12 +57,12 @@ TEST_CASE(writer_write_from_buffer)
     std::copy(send_kernel.begin(), send_kernel.end(), kernel_buffer.begin() + 1);
     send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
 
+    std::thread writer{Writer::Start("/root/Unit", buf, 10)};
+
     sleep(1);
 
-    while (!buf.IsL2Empty()) write.Write(buf.Pull(std::chrono::milliseconds(10)));
-
     // Change log level
-    uint8_t send_change_1[2] = { LOG_LEVEL_CHANGE, LOG_LEVEL_I };
+    uint8_t send_change_1[2] = { LOG_CTL_LEVEL_CHANGE, LOG_LEVEL_I };
     send_socket.Send(send_change_1, 2);
 
     send_socket.Send(info_buffer.data(), info_buffer.size());
@@ -75,19 +73,27 @@ TEST_CASE(writer_write_from_buffer)
 
     sleep(1);
 
-    while (!buf.IsL2Empty()) write.Write(buf.Pull(std::chrono::milliseconds(10)));
-
     // Change log level
-    uint8_t send_change_2[2] = { LOG_LEVEL_CHANGE, LOG_LEVEL_K | LOG_LEVEL_D };
+    uint8_t send_change_2[2] = { LOG_CTL_LEVEL_CHANGE, LOG_LEVEL_K | LOG_LEVEL_D };
     send_socket.Send(send_change_2, 2);
 
-    send_socket.Send(info_buffer.data(), info_buffer.size());
-    send_socket.Send(debug_buffer.data(), debug_buffer.size());
-    send_socket.Send(warning_buffer.data(), warning_buffer.size());
-    send_socket.Send(error_buffer.data(), error_buffer.size());
-    send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
+    uint8_t loop_buffer[3] = { LOG_LEVEL_K, ' ', ' ' };
+    for (int i = 0; i < 10; ++i)
+    {
+        send_socket.Send(info_buffer.data(), info_buffer.size());
+        send_socket.Send(debug_buffer.data(), debug_buffer.size());
+        send_socket.Send(warning_buffer.data(), warning_buffer.size());
+        send_socket.Send(error_buffer.data(), error_buffer.size());
+        send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
+        loop_buffer[2] = i + '0';
+        send_socket.Send(loop_buffer, 3);
+    }
 
     sleep(1);
 
-    while (!buf.IsL2Empty()) write.Write(buf.Pull(std::chrono::milliseconds(10)));
+    Writer::Stop();
+    writer.join();
+
+    // uint8_t send_exit[1] = { LOG_CTL_EXIT };
+    // send_socket.Send(send_exit, 1);
 }

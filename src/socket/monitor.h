@@ -23,8 +23,6 @@
 class Monitor
 {
 private:
-    /* ----- Constructors ----- */
-
     void Init();
     Monitor(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
     Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
