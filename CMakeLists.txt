@@ -49,8 +49,8 @@ EXECUTE_PROCESS(
 )
 
 CONFIGURE_FILE(
-    ${CMAKE_SOURCE_DIR}/utils/version.h.in
-    ${CMAKE_SOURCE_DIR}/utils/version.h
+    ${CMAKE_SOURCE_DIR}/others/version/version.h.in
+    ${CMAKE_SOURCE_DIR}/others/version/version.h
 )
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/utils/)
