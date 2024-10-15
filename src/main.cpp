@@ -6,22 +6,20 @@
 
 int main()
 {
-    // Buffer buff(2000, 2000);
-    // std::thread monitor{Monitor::Start("127.0.0.1", 12345, buff)};
-    // std::thread writer{Writer::Start("/root/Unit", buff, 2000)};
+    Buffer buff(2000, 2000);
+    std::thread monitor{Monitor::Start("127.0.0.1", 12345, buff)};
+    std::thread writer{Writer::Start("/root/Unit", buff, 2000)};
 
-    // Monitor& m = Monitor::Get_Instance();
-    // Writer& w = Writer::Get_Instance();
+    Monitor& m = Monitor::Get_Instance();
+    Writer& w = Writer::Get_Instance();
 
-    // Controller ctl("127.0.0.1", 20000, "127.0.0.1", 20002, m, w);
+    Controller ctl("127.0.0.1", 20000, "127.0.0.1", 30000, m, w);
 
-    // while (true)
-    // {
-    //     ctl();
-    // }
+    ctl();
+    sleep(1);
 
-    // Monitor::Stop();
-    // monitor.join();
-    // Writer::Stop();
-    // writer.join();
+    Monitor::Stop();
+    monitor.join();
+    Writer::Stop();
+    writer.join();
 }

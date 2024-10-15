@@ -11,5 +11,13 @@ int main()
         Litelog_Send(buffer, 5);
     }
 
+    // Close
+    struct Socket_Wrap lo;
+    Socket_Init(&lo, "127.0.0.1", 30000);
+    struct sockaddr_in re;
+    Socket_Create_Target(&re, "127.0.0.1", 20000);
+    uint8_t command[1] = {0x00};
+    Socket_Send(lo.device, command, 1, (struct sockaddr*)&re);
+
     Litlog_Exit();
 }
