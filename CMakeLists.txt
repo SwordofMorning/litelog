@@ -16,11 +16,13 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -O3 -lrt -pthread")
 
 SET(APP_NAME "litelog")
 SET(TEST_NAME "litelog_test")
+SET(USAGE_NAME "litelog_usage")
 
 # ===== Setp 4 : Add Subdirectory =====
 
 ADD_SUBDIRECTORY(src bin)
 ADD_SUBDIRECTORY(test)
+ADD_SUBDIRECTORY(others/usage)
 
 # ===== Step 5: Generate Version Info =====
 
