@@ -28,10 +28,10 @@ public:
     void operator()();
 
 private:
-    using Command = int(Controller::*)(uint8_t *command_offset, uint8_t *result);
+    using Command = int (Controller::*)(uint8_t* command_offset, uint8_t* result);
     std::map<uint8_t, Command> m_commands;
 
-    int Command_Stop_Program(uint8_t *command_offset, uint8_t *result);
-    int Command_Change_Log_Level(uint8_t *command_offset, uint8_t *result);
-    int Command_Switch_Page(uint8_t *command_offset, uint8_t *result);
+    int Command_Stop_Program(uint8_t* command_offset, uint8_t* result);
+    int Command_Change_Log_Level(uint8_t* command_offset, uint8_t* result);
+    int Command_Switch_Page(uint8_t* command_offset, uint8_t* result);
 };

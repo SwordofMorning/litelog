@@ -38,6 +38,8 @@ class Writer
 private:
     Writer(const std::string& log_path, Buffer& buffer, size_t max_log_lines);
     ~Writer();
+    Writer() = delete;
+    void operator=(const Writer&) = delete;
 
     std::ofstream m_log_file;
     std::mutex m_file_mutex;
@@ -54,7 +56,6 @@ private:
     void Info(const std::string& str_time);
 
     static std::unique_ptr<Writer, std::function<void(Writer*)>> m_writer;
-    friend class std::default_delete<Writer>;
 
     void Write(const std::string& str);
     void operator()();

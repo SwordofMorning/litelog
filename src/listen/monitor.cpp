@@ -43,7 +43,7 @@ Monitor::Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buff
 
 Monitor::~Monitor()
 {
-    std::cout << "kill monitor" << std::endl;
+    // do nothing
 }
 
 void Monitor::operator()()
@@ -118,7 +118,7 @@ void Monitor::PushLogEntry(const std::pair<uint64_t, std::string>& log_entry)
 
 void Monitor::ProcessLogEntry()
 {
-    while (true)
+    while (!m_stop_operator)
     {
         std::pair<uint64_t, std::string> log_entry;
         {
@@ -158,6 +158,9 @@ std::function<void()> Monitor::Start(const std::string& listen_ip, const uint16_
 void Monitor::Stop()
 {
     m_monitor->m_stop_operator = true;
+    m_monitor->m_stop_time_thread = true;
+    m_monitor->m_time_thread.join();
+    m_monitor->m_queue_cv.notify_all();
 }
 
 void Monitor::Set_Log_Level(uint8_t log_level)

@@ -51,7 +51,7 @@ TEST_CASE(writer_write_from_buffer)
     std::copy(send_kernel.begin(), send_kernel.end(), kernel_buffer.begin() + 1);
     send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
 
-    std::thread writer{Writer::Start("/root/Unit", buf, 10)};
+    std::thread writer{Writer::Start("/root/Unit", buf, 100)};
 
     sleep(1);
 
