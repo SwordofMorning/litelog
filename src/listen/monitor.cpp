@@ -1,6 +1,6 @@
 #include "monitor.h"
 
-Monitor* Monitor::m_monitor = nullptr;
+std::unique_ptr<Monitor, std::function<void(Monitor*)>> Monitor::m_monitor = nullptr;
 
 void Monitor::Init()
 {
@@ -43,26 +43,7 @@ Monitor::Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buff
 
 Monitor::~Monitor()
 {
-    if (m_monitor)
-        delete m_monitor;
-}
-
-Monitor* Monitor::Get_Instance(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer)
-{
-    // clang-format off
-    return m_monitor == nullptr ? 
-        (m_monitor = new Monitor(listen_ip, listen_port, buffer)) : 
-        m_monitor;
-    // clang-format on
-}
-
-Monitor* Monitor::Get_Instance(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer)
-{
-    // clang-format off
-    return m_monitor == nullptr ? 
-        (m_monitor = new Monitor(listen_ip, listen_port, buffer)) : 
-        m_monitor;
-    // clang-format on
+    std::cout << "kill monitor" << std::endl;
 }
 
 void Monitor::operator()()
@@ -76,17 +57,6 @@ void Monitor::operator()()
         ret = m_listen2.Recv(command_buffer, 100, 100);
         if (ret > 0)
         {
-            if (command_buffer[0] == LOG_CTL_LEVEL_CHANGE)
-            {
-                m_log_level = command_buffer[1];
-                continue;
-            }
-            else if (command_buffer[0] == LOG_CTL_EXIT)
-            {
-                Monitor::Stop();
-                break;
-            }
-
             uint8_t log_level = command_buffer[0];
             std::string log(command_buffer + 1, command_buffer + ret);
             if (log_level & m_log_level)
@@ -167,15 +137,39 @@ void Monitor::ProcessLogEntry()
 
 std::function<void()> Monitor::Start(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer)
 {
-    return std::bind(&Monitor::operator(), Monitor::Get_Instance(listen_ip, listen_port, buffer));
+    // clang-format off
+    if (!m_monitor)
+        m_monitor = std::unique_ptr<Monitor, std::function<void(Monitor*)>>
+            (new Monitor(listen_ip, listen_port, buffer), [](Monitor* Monitor) { delete Monitor; });
+    return std::bind(&Monitor::operator(), &(*m_monitor));
+    // clang-format on
 }
 
 std::function<void()> Monitor::Start(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer)
 {
-    return std::bind(&Monitor::operator(), Monitor::Get_Instance(listen_ip, listen_port, buffer));
+    // clang-format off
+    if (!m_monitor)
+        m_monitor = std::unique_ptr<Monitor, std::function<void(Monitor*)>>
+            (new Monitor(listen_ip, listen_port, buffer), [](Monitor* Monitor) { delete Monitor; });
+    return std::bind(&Monitor::operator(), &(*m_monitor));
+    // clang-format on
 }
 
 void Monitor::Stop()
 {
     m_monitor->m_stop_operator = true;
+}
+
+void Monitor::Set_Log_Level(uint8_t log_level)
+{
+    m_log_level = log_level;
+}
+
+Monitor& Monitor::Get_Instance()
+{
+    if (!m_monitor)
+    {
+        throw std::runtime_error("Writer is not initialized");
+    }
+    return *m_monitor.get();
 }

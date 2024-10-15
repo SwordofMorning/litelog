@@ -16,7 +16,7 @@
 #include <functional>
 #include <iomanip>
 #include <queue>
-#include "socket_p.h"
+#include "../socket/socket_p.h"
 #include "../buffer/buffer.h"
 #include "../utils/threadpool.h"
 
@@ -44,8 +44,6 @@ private:
     bool m_stop_time_thread;
     std::mutex m_time_mtx;
 
-    static Monitor* m_monitor;
-    static Monitor* Get_Instance();
     static Monitor* Get_Instance(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
     static Monitor* Get_Instance(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
 
@@ -64,10 +62,16 @@ private:
     void ProcessLogEntry();
 
 public:
+    static std::unique_ptr<Monitor, std::function<void(Monitor*)>> m_monitor;
+
     // Bind operator() and Get_Instance(), return callable object of class Monitor.
     static std::function<void()> Start(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
     // Bind operator() and Get_Instance(), return callable object of class Monitor.
     static std::function<void()> Start(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
 
     static void Stop();
+
+    static Monitor& Get_Instance();
+
+    void Set_Log_Level(uint8_t log_level);
 };

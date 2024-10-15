@@ -24,17 +24,12 @@ enum
 
 enum
 {
-    /**
-     * @brief Change log level.
-     * @note When Monitor receive this index as command_buffer[0], set Monitor::m_log_level to command_buffer[1].
-     */
-    LOG_CTL_LEVEL_CHANGE = 1 << 5,
-    /**
-     * @brief Exit whole program.
-     * @note When Monitor receive this index as command_buffer[0], exit whole program.
-     */
-    LOG_CTL_EXIT = 1 << 6,
+    CTL_STOP_PROGRAM = 0,
+    CTL_CHANGE_LEVEL,
+    CTL_SWITCH_PAGE,
 };
+
+#define CLEAR(x) memset(&(x), 0, sizeof(x))
 
 #ifdef __cplusplus
 }

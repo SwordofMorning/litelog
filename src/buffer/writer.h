@@ -63,4 +63,6 @@ public:
     static std::function<void()> Start(const std::string& log_path, Buffer& buffer, size_t max_log_lines);
     static void Stop();
     void Switch();
+
+    static Writer& Get_Instance();
 };

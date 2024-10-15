@@ -1,7 +1,8 @@
 #include <iostream>
 #include "buffer/buffer.h"
 #include "buffer/writer.h"
-#include "socket/monitor.h"
+#include "listen/monitor.h"
+#include "listen/controller.h"
 
 int main()
 {
@@ -9,9 +10,14 @@ int main()
     std::thread monitor{Monitor::Start("127.0.0.1", 12345, buff)};
     std::thread writer{Writer::Start("/root/Unit", buff, 2000)};
 
+    Monitor& m = Monitor::Get_Instance();
+    Writer& w = Writer::Get_Instance();
+
+    Controller ctl("127.0.0.1", 20000, "127.0.0.1", 20002, m, w);
+
     while (true)
     {
-        // do nothing
+        ctl();
     }
 
     Monitor::Stop();

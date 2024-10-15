@@ -13,6 +13,7 @@ Writer::Writer(const std::string& log_path, Buffer& buffer, size_t max_log_lines
 
 Writer::~Writer()
 {
+    std::cout << "Kill Writer" << std::endl;
     Exit();
 }
 
@@ -87,6 +88,7 @@ void Writer::operator()()
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
+    std::cout << "out writer" << std::endl;
 }
 
 std::function<void()> Writer::Start(const std::string& log_path, Buffer& buffer, size_t max_log_lines)
@@ -111,4 +113,14 @@ void Writer::Switch()
     Exit();
     m_lines_written = 0;
     Init();
+}
+
+Writer& Writer::Get_Instance()
+{
+    if (!m_writer)
+    {
+        // 如果 m_writer 为空,则抛出一个异常或采取其他错误处理方式
+        throw std::runtime_error("Writer is not initialized");
+    }
+    return *m_writer.get();  // 返回 Writer& 引用
 }
