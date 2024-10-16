@@ -1,40 +1,60 @@
 #pragma once
 
 #include "../../others/version/version.h"
+#include "include.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum
-{
-    // Silence
-    LOG_LEVEL_S = 0,
-    // Error
-    LOG_LEVEL_E = 1 << 0,
-    // Warning
-    LOG_LEVEL_W = 1 << 1,
-    // Debug
-    LOG_LEVEL_D = 1 << 2,
-    // Info
-    LOG_LEVEL_I = 1 << 3,
-    // Kernel
-    LOG_LEVEL_K = 1 << 4,
-};
+/* Config Reader */
 
-enum
-{
-    /**
-     * @brief Change log level.
-     * @note When Monitor receive this index as command_buffer[0], set Monitor::m_log_level to command_buffer[1].
-     */
-    LOG_CTL_LEVEL_CHANGE = 1 << 5,
-    /**
-     * @brief Exit whole program.
-     * @note When Monitor receive this index as command_buffer[0], exit whole program.
-     */
-    LOG_CTL_EXIT = 1 << 6,
-};
+#define MAX_LINE_LENGTH 1024
+#define MAX_SECTION_LENGTH 128
+#define MAX_KEY_LENGTH 128
+#define MAX_PATH_LENGTH 256
+
+void Strip_Whitespace(char* str);
+
+void Read_Config(const char* filename);
+
+int Mkdir_Recursive(const char* path);
+
+void Init();
+
+/* Default Parameters */
+
+#define def_l1_cap 1024
+extern size_t l1_cap;
+#define def_l2_cap 1024
+extern size_t l2_cap;
+
+#define def_listen_ip "127.0.0.1"
+extern char listen_ip[20];
+#define def_listen_port 12345
+extern uint16_t listen_port;
+
+#define def_log_path "/var/run/litelog/"
+extern char log_path[MAX_PATH_LENGTH];
+#define def_log_prefix ""
+extern char log_prefix[MAX_PATH_LENGTH];
+#define def_log_lines 1024
+extern int log_lines;
+
+#define def_ctl_recv_ip "127.0.0.1"
+extern char ctl_recv_ip[20];
+#define def_ctl_recv_port 12346
+extern uint16_t ctl_recv_port;
+#define def_ctl_send_ip "127.0.0.1"
+extern char ctl_send_ip[20];
+#define def_ctl_send_port 12347
+extern uint16_t ctl_send_port;
 
 #ifdef __cplusplus
 }

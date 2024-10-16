@@ -94,7 +94,7 @@ std::function<void()> Writer::Start(const std::string& log_path, Buffer& buffer,
     // clang-format off
     if (!m_writer)
         m_writer = std::unique_ptr<Writer, std::function<void(Writer*)>>
-            (new Writer(log_path, buffer, max_log_lines), [](Writer* writer) { delete writer; });
+            (new Writer(log_path, buffer, max_log_lines), [](Writer* Writer) { delete Writer; });
     return std::bind(&Writer::operator(), &(*m_writer));
     // clang-format on
 }
@@ -111,4 +111,13 @@ void Writer::Switch()
     Exit();
     m_lines_written = 0;
     Init();
+}
+
+Writer& Writer::Get_Instance()
+{
+    if (!m_writer)
+    {
+        throw std::runtime_error("Writer is not initialized");
+    }
+    return *m_writer.get();
 }

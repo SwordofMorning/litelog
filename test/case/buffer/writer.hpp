@@ -2,7 +2,7 @@
 
 #include "../../../src/buffer/writer.h"
 #include "../../../src/buffer/buffer.h"
-#include "../../../src/socket/monitor.h"
+#include "../../../src/listen/monitor.h"
 #include "../../utils/utils.h"
 #include <cassert>
 #include <cstdint>
@@ -12,8 +12,6 @@
 TEST_CASE(writer_write_from_buffer)
 {
     Socket send_socket(Socket{ "127.0.0.1", 10001, "127.0.0.1", 12345 });
-    uint8_t send_buffer_1[3] = { 0x04, 'B', 'C' };
-    uint8_t send_buffer_2[3] = { 0x08, 'F', 'G' };
 
     // [0] = 1
     std::string send_error{"[program1] Error!"};
@@ -25,10 +23,6 @@ TEST_CASE(writer_write_from_buffer)
     std::string send_info{"[program1] Hello World!"};
     // [0] = 16
     std::string send_kernel{"[kernel] Kernel information"};
-
-    // Sent uint8_t
-    send_socket.Send(send_buffer_1, 3);
-    send_socket.Send(send_buffer_2, 3);
 
     // Send string with cast
 
@@ -57,13 +51,9 @@ TEST_CASE(writer_write_from_buffer)
     std::copy(send_kernel.begin(), send_kernel.end(), kernel_buffer.begin() + 1);
     send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
 
-    std::thread writer{Writer::Start("/root/Unit", buf, 10)};
+    std::thread writer{Writer::Start("/root/Unit", buf, 100)};
 
     sleep(1);
-
-    // Change log level
-    uint8_t send_change_1[2] = { LOG_CTL_LEVEL_CHANGE, LOG_LEVEL_I };
-    send_socket.Send(send_change_1, 2);
 
     send_socket.Send(info_buffer.data(), info_buffer.size());
     send_socket.Send(debug_buffer.data(), debug_buffer.size());
@@ -73,11 +63,6 @@ TEST_CASE(writer_write_from_buffer)
 
     sleep(1);
 
-    // Change log level
-    uint8_t send_change_2[2] = { LOG_CTL_LEVEL_CHANGE, LOG_LEVEL_K | LOG_LEVEL_D };
-    send_socket.Send(send_change_2, 2);
-
-    uint8_t loop_buffer[3] = { LOG_LEVEL_K, ' ', ' ' };
     for (int i = 0; i < 10; ++i)
     {
         send_socket.Send(info_buffer.data(), info_buffer.size());
@@ -85,8 +70,6 @@ TEST_CASE(writer_write_from_buffer)
         send_socket.Send(warning_buffer.data(), warning_buffer.size());
         send_socket.Send(error_buffer.data(), error_buffer.size());
         send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
-        loop_buffer[2] = i + '0';
-        send_socket.Send(loop_buffer, 3);
     }
 
     sleep(1);

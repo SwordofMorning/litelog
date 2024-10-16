@@ -1,4 +1,32 @@
-#include "socket_c.h"
+#pragma once
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/select.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* ======================================================================================== */
+/* ======================================== Socket ======================================== */
+/* ======================================================================================== */
+
+struct Socket_Wrap
+{
+    // socket device.
+    int device;
+    // this socket's ip and port.
+    struct sockaddr_in self_address;
+};
 
 /**
  * @brief Create device descriptor for socket wrap.
@@ -122,3 +150,32 @@ void Socket_Exit(struct Socket_Wrap* p_socket)
         p_socket->device = -1;
     }
 }
+
+/* ======================================================================================== */
+/* ======================================== Client ======================================== */
+/* ======================================================================================== */
+
+struct Socket_Wrap local;
+struct sockaddr_in server;
+
+void Litelog_Init(char* local_ip, uint16_t local_port, char* target_ip, uint16_t target_port)
+{
+    // Init local socket.
+    Socket_Init(&local, local_ip, local_port);
+    // Wrap remote ip and port.
+    Socket_Create_Target(&server, target_ip, target_port);
+}
+
+int Litelog_Send(uint8_t* buffer, size_t n)
+{
+    return Socket_Send(local.device, buffer, n, (struct sockaddr*)&server);
+}
+
+void Litlog_Exit()
+{
+    Socket_Exit(&local);
+}
+
+#ifdef __cplusplus
+}
+#endif
