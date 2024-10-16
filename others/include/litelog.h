@@ -223,7 +223,7 @@ int Litelog_Log(uint8_t level, const char* str, size_t n)
 
     // Malloc Buffer
     uint8_t* buffer = (uint8_t*)malloc(n + 1);
-    if (buffer == NULL) 
+    if (buffer == NULL)
     {
         ret = -2;
         goto out_return;
@@ -253,12 +253,14 @@ struct Litelog
     int (*log)(uint8_t level, const char* str, size_t n);
 };
 
+// clang-format off
 struct Litelog litelog =
 {
     .init = Litelog_Init,
     .exit = Litelog_Exit,
     .log = Litelog_Log
 };
+// clang-format on
 
 #ifdef __cplusplus
 }
