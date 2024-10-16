@@ -32,8 +32,6 @@ void Controller::operator()()
 
     while (!m_stop)
     {
-        std::cout << "pre" << std::endl;
-
         // pre-declare for goto.
         int ret = 0;
         CLEAR(command);
@@ -42,9 +40,6 @@ void Controller::operator()()
 
         // Get socket data.
         ret = m_socket.Recv(command, n, 0);
-
-        std::cout << "recv" << std::endl;
-        printf("command[0] = %x\n", command[0]);
 
         if (ret < 0)
             continue;
@@ -67,8 +62,6 @@ void Controller::operator()()
 
     return_result:
         ret = m_socket.Send(result, n);
-
-        std::cout << "send" << std::endl;
     }
 }
 

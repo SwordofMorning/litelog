@@ -56,3 +56,8 @@ CONFIGURE_FILE(
 )
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/others/)
+
+# ===== Step 6: Copy Conf to Output =====
+
+FILE(COPY ${CMAKE_SOURCE_DIR}/others/conf/litelog.ini
+    DESTINATION ${CMAKE_BINARY_DIR}/bin)

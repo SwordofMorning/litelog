@@ -6,12 +6,13 @@ void Monitor::Init()
 {
     m_stop_operator = false;
     m_stop_time_thread = false;
-    m_log_level = LOG_LEVEL_E | LOG_LEVEL_W | LOG_LEVEL_D | LOG_LEVEL_I | LOG_LEVEL_K;
+    m_log_level = LOG_LEVEL_A - 1;
     m_log_level_symbol[LOG_LEVEL_E] = 'E';
     m_log_level_symbol[LOG_LEVEL_W] = 'W';
     m_log_level_symbol[LOG_LEVEL_D] = 'D';
     m_log_level_symbol[LOG_LEVEL_I] = 'I';
     m_log_level_symbol[LOG_LEVEL_K] = 'K';
+    m_log_level_symbol[LOG_LEVEL_L] = 'L';
 
     /* Thread: Update time */
 
