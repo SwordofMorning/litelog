@@ -11,10 +11,43 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/select.h>
+#include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* ======================================================================================== */
+/* ======================================== Define ======================================== */
+/* ======================================================================================== */
+
+enum
+{
+    // Silence
+    LOG_LEVEL_S = 0,
+    // Error
+    LOG_LEVEL_E = 1 << 0,
+    // Warning
+    LOG_LEVEL_W = 1 << 1,
+    // Debug
+    LOG_LEVEL_D = 1 << 2,
+    // Info
+    LOG_LEVEL_I = 1 << 3,
+    // Kernel
+    LOG_LEVEL_K = 1 << 4,
+    // Litelog itself
+    LOG_LEVEL_L = 1 << 5,
+    // All
+    LOG_LEVEL_A = 1 << 6,
+};
+
+enum
+{
+    CTL_STOP_PROGRAM = 0,
+    CTL_CHANGE_LEVEL,
+    CTL_SWITCH_PAGE,
+};
 
 /* ======================================================================================== */
 /* ======================================== Socket ======================================== */
@@ -166,15 +199,66 @@ void Litelog_Init(char* local_ip, uint16_t local_port, char* target_ip, uint16_t
     Socket_Create_Target(&server, target_ip, target_port);
 }
 
+void Litelog_Exit()
+{
+    Socket_Exit(&local);
+}
+
 int Litelog_Send(uint8_t* buffer, size_t n)
 {
     return Socket_Send(local.device, buffer, n, (struct sockaddr*)&server);
 }
 
-void Litlog_Exit()
+int Litelog_Log(uint8_t level, const char* str, size_t n)
 {
-    Socket_Exit(&local);
+    int ret = 0;
+
+    // Valid Check
+    uint8_t valid_levels = LOG_LEVEL_E | LOG_LEVEL_W | LOG_LEVEL_D | LOG_LEVEL_I;
+    if ((level & ~valid_levels) != 0 || (level & (level - 1)) != 0)
+    {
+        ret = -1;
+        goto out_return;
+    }
+
+    // Malloc Buffer
+    uint8_t* buffer = (uint8_t*)malloc(n + 1);
+    if (buffer == NULL) 
+    {
+        ret = -2;
+        goto out_return;
+    }
+
+    // Create Uint8 Data
+    buffer[0] = level;
+    for (size_t i = 0; i < n; i++)
+        buffer[i + 1] = (uint8_t)str[i];
+
+    ret = Litelog_Send(buffer, n + 1);
+
+    free(buffer);
+
+out_return:
+    return ret;
 }
+
+/* ===================================================================================== */
+/* ======================================== API ======================================== */
+/* ===================================================================================== */
+
+struct Litelog
+{
+    void (*init)(char* local_ip, uint16_t local_port, char* target_ip, uint16_t target_port);
+    void (*exit)();
+    int (*log)(uint8_t level, const char* str, size_t n);
+};
+
+struct Litelog litelog =
+{
+    .init = Litelog_Init,
+    .exit = Litelog_Exit,
+    .log = Litelog_Log
+};
 
 #ifdef __cplusplus
 }

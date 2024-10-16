@@ -3,13 +3,13 @@
 int main()
 {
     // first ip:port is this program, second ip:port is which litelog listen to.
-    Litelog_Init("127.0.0.1", 9999, "127.0.0.1", 12345);
+    litelog.init("127.0.0.1", 9999, "127.0.0.1", 12345);
 
-    uint8_t buffer[5] = {0x01, 'A', 'B', 'C', ' '};
+    char buffer[] = " Hello";
     for (int i = 0; i < 10; ++i)
     {
-        buffer[4] = '0' + i;
-        Litelog_Send(buffer, 5);
+        buffer[0] = '0' + i;
+        litelog.log(1 << i, buffer, sizeof(buffer));
     }
 
     // which is remote of controller
@@ -22,5 +22,5 @@ int main()
     uint8_t command[1] = {0x00};
     Socket_Send(lo.device, command, 1, (struct sockaddr*)&re);
 
-    Litlog_Exit();
+    litelog.exit();
 }
