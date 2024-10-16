@@ -35,6 +35,7 @@ void Read_Config(const char* filename)
         printf("Can not open config file: %s, use default parameters.\n", filename);
         return;
     }
+    printf("\nUse config file: %s\n", filename);
 
     char line[MAX_LINE_LENGTH];
     char section[MAX_SECTION_LENGTH] = "";
