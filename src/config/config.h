@@ -24,7 +24,7 @@ void Strip_Whitespace(char* str);
 
 void Read_Config(const char* filename);
 
-int Mkdir_Recursive(const char *path);
+int Mkdir_Recursive(const char* path);
 
 void Init();
 

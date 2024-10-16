@@ -12,7 +12,7 @@ uint16_t ctl_recv_port = def_ctl_recv_port;
 char ctl_send_ip[20] = def_ctl_send_ip;
 uint16_t ctl_send_port = def_ctl_send_port;
 
-void Strip_Whitespace(char* str) 
+void Strip_Whitespace(char* str)
 {
     char* write = str;
     char* read = str;
@@ -58,7 +58,8 @@ void Read_Config(const char* filename)
             char key[MAX_KEY_LENGTH];
             char value[MAX_LINE_LENGTH];
             char* delimiter = strchr(line, '=');
-            if (delimiter != NULL) {
+            if (delimiter != NULL)
+            {
                 strncpy(key, line, delimiter - line);
                 key[delimiter - line] = '\0';
                 strcpy(value, delimiter + 1);
