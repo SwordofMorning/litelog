@@ -259,15 +259,17 @@ int Litelog_Shutdown()
     return Litelog_Send(command, 1, controller);
 }
 
-// int Litelog_Change_Level()
-// {
+int Litelog_Change_Level(uint8_t level)
+{
+    uint8_t command[2] = {CTL_CHANGE_LEVEL, level};
+    return Litelog_Send(command, 2, controller);
+}
 
-// }
-
-// int Litelog_Switch_Page()
-// {
-
-// }
+int Litelog_Switch_Page()
+{
+    uint8_t command[1] = {CTL_SWITCH_PAGE};
+    return Litelog_Send(command, 1, controller);
+}
 
 /* ===================================================================================== */
 /* ======================================== API ======================================== */
@@ -279,6 +281,8 @@ struct Litelog
     void (*exit)();
     int (*log)(uint8_t level, const char* str, size_t n);
     int (*shutdown)();
+    int (*change_level)(uint8_t level);
+    int (*switch_page)();
 };
 
 // clang-format off
@@ -288,6 +292,8 @@ struct Litelog litelog =
     .exit = Litelog_Exit,
     .log = Litelog_Log,
     .shutdown = Litelog_Shutdown,
+    .change_level = Litelog_Change_Level,
+    .switch_page = Litelog_Switch_Page,
 };
 // clang-format on
 
