@@ -47,6 +47,15 @@ extern char log_prefix[MAX_PATH_LENGTH];
 #define def_log_lines 1024
 extern int log_lines;
 
+#define def_ctl_recv_ip "127.0.0.1"
+extern char ctl_recv_ip[20];
+#define def_ctl_recv_port 12346
+extern uint16_t ctl_recv_port;
+#define def_ctl_send_ip "127.0.0.1"
+extern char ctl_send_ip[20];
+#define def_ctl_send_port 12347
+extern uint16_t ctl_send_port;
+
 #ifdef __cplusplus
 }
 #endif

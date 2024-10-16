@@ -16,7 +16,7 @@ int main()
     Monitor& m = Monitor::Get_Instance();
     Writer& w = Writer::Get_Instance();
 
-    Controller ctl("127.0.0.1", 20000, "127.0.0.1", 30000, m, w);
+    Controller ctl(ctl_recv_ip, ctl_recv_port, ctl_send_ip, ctl_send_port, m, w);
 
     ctl();
     sleep(1);

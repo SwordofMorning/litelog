@@ -7,13 +7,19 @@ uint16_t listen_port = def_listen_port;
 char log_path[MAX_PATH_LENGTH] = def_log_path;
 char log_prefix[MAX_PATH_LENGTH] = def_log_prefix;
 int log_lines = def_log_lines;
+char ctl_recv_ip[20] = def_ctl_recv_ip;
+uint16_t ctl_recv_port = def_ctl_recv_port;
+char ctl_send_ip[20] = def_ctl_send_ip;
+uint16_t ctl_send_port = def_ctl_send_port;
 
 void Strip_Whitespace(char* str) 
 {
     char* write = str;
     char* read = str;
-    while (*read) {
-        if (*read != ' ' && *read != '\t' && *read != '\n' && *read != '\r') {
+    while (*read)
+    {
+        if (*read != ' ' && *read != '\t' && *read != '\n' && *read != '\r')
+        {
             *write++ = *read;
         }
         read++;
@@ -23,7 +29,7 @@ void Strip_Whitespace(char* str)
 
 void Read_Config(const char* filename)
 {
-    FILE *file = fopen(filename, "r");
+    FILE* file = fopen(filename, "r");
     if (file == NULL)
     {
         printf("Can not open config file: %s, use default parameters.\n", filename);
@@ -59,7 +65,6 @@ void Read_Config(const char* filename)
 
                 if (strcmp(section, "buffer") == 0)
                 {
-                    printf("buffer:\n");
                     if (strcmp(key, "l1_cap") == 0)
                     {
                         l1_cap = atoi(value);
@@ -71,9 +76,8 @@ void Read_Config(const char* filename)
                         printf("l2_cap: %d\n", l2_cap);
                     }
                 }
-                if (strcmp(section, "monitor") == 0)
+                else if (strcmp(section, "monitor") == 0)
                 {
-                    printf("monitor:\n");
                     if (strcmp(key, "listen_ip") == 0)
                     {
                         strncpy(listen_ip, value, sizeof(listen_ip) - 1);
@@ -86,9 +90,8 @@ void Read_Config(const char* filename)
                         printf("listen_port: %d\n", listen_port);
                     }
                 }
-                if (strcmp(section, "writer") == 0)
+                else if (strcmp(section, "writer") == 0)
                 {
-                    printf("writer:\n");
                     if (strcmp(key, "log_path") == 0)
                     {
                         strncpy(log_path, value, sizeof(log_path) - 1);
@@ -99,12 +102,37 @@ void Read_Config(const char* filename)
                     {
                         strncpy(log_prefix, value, sizeof(log_prefix) - 1);
                         log_prefix[sizeof(log_prefix) - 1] = '\0';
-                        printf("log_prefix: %d\n", log_prefix);
+                        printf("log_prefix: %s\n", log_prefix);
                     }
                     else if (strcmp(key, "log_lines") == 0)
                     {
                         log_lines = atoi(value);
                         printf("log_lines: %d\n", log_lines);
+                    }
+                }
+                else if (strcmp(section, "controller") == 0)
+                {
+                    if (strcmp(key, "ctl_recv_ip") == 0)
+                    {
+                        strncpy(ctl_recv_ip, value, sizeof(ctl_recv_ip) - 1);
+                        ctl_recv_ip[sizeof(ctl_recv_ip) - 1] = '\0';
+                        printf("ctl_recv_ip: %s\n", ctl_recv_ip);
+                    }
+                    else if (strcmp(key, "ctl_recv_port") == 0)
+                    {
+                        ctl_recv_port = atoi(value);
+                        printf("ctl_recv_port: %d\n", ctl_recv_port);
+                    }
+                    else if (strcmp(key, "ctl_send_ip") == 0)
+                    {
+                        strncpy(ctl_send_ip, value, sizeof(ctl_send_ip) - 1);
+                        ctl_send_ip[sizeof(ctl_send_ip) - 1] = '\0';
+                        printf("ctl_send_ip: %s\n", ctl_send_ip);
+                    }
+                    else if (strcmp(key, "ctl_send_port") == 0)
+                    {
+                        ctl_send_port = atoi(value);
+                        printf("ctl_send_port: %d\n", ctl_send_port);
                     }
                 }
             }
@@ -114,10 +142,10 @@ void Read_Config(const char* filename)
     fclose(file);
 }
 
-int Mkdir_Recursive(const char *path)
+int Mkdir_Recursive(const char* path)
 {
     char path_buffer[MAX_PATH_LENGTH];
-    char *p = NULL;
+    char* p = NULL;
     size_t len = strlen(path);
 
     strcpy(path_buffer, path);
