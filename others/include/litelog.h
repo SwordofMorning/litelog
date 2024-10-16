@@ -189,14 +189,25 @@ void Socket_Exit(struct Socket_Wrap* p_socket)
 /* ======================================================================================== */
 
 struct Socket_Wrap local;
-struct sockaddr_in server;
+// local of monitor
+struct sockaddr_in monitor;
+// local of controller
+struct sockaddr_in controller;
 
-void Litelog_Init(char* local_ip, uint16_t local_port, char* target_ip, uint16_t target_port)
+void Litelog_Init()
 {
-    // Init local socket.
+    char* local_ip = "127.0.0.1";
+    uint16_t local_port = 12347;
+
+    char* monitor_ip = "127.0.0.1";
+    uint16_t monitor_port = 12345;
+
+    char controller_ip[] = "127.0.0.1";
+    uint16_t controller_port = 12346;
+
     Socket_Init(&local, local_ip, local_port);
-    // Wrap remote ip and port.
-    Socket_Create_Target(&server, target_ip, target_port);
+    Socket_Create_Target(&monitor, monitor_ip, monitor_port);
+    Socket_Create_Target(&controller, controller_ip, controller_port);
 }
 
 void Litelog_Exit()
@@ -204,9 +215,9 @@ void Litelog_Exit()
     Socket_Exit(&local);
 }
 
-int Litelog_Send(uint8_t* buffer, size_t n)
+int Litelog_Send(uint8_t* buffer, size_t n, struct sockaddr_in target)
 {
-    return Socket_Send(local.device, buffer, n, (struct sockaddr*)&server);
+    return Socket_Send(local.device, buffer, n, (struct sockaddr*)&target);
 }
 
 int Litelog_Log(uint8_t level, const char* str, size_t n)
@@ -234,7 +245,7 @@ int Litelog_Log(uint8_t level, const char* str, size_t n)
     for (size_t i = 0; i < n; i++)
         buffer[i + 1] = (uint8_t)str[i];
 
-    ret = Litelog_Send(buffer, n + 1);
+    ret = Litelog_Send(buffer, n + 1, monitor);
 
     free(buffer);
 
@@ -242,15 +253,32 @@ out_return:
     return ret;
 }
 
+int Litelog_Shutdown()
+{
+    uint8_t command[1] = {CTL_STOP_PROGRAM};
+    return Litelog_Send(command, 1, controller);
+}
+
+// int Litelog_Change_Level()
+// {
+
+// }
+
+// int Litelog_Switch_Page()
+// {
+
+// }
+
 /* ===================================================================================== */
 /* ======================================== API ======================================== */
 /* ===================================================================================== */
 
 struct Litelog
 {
-    void (*init)(char* local_ip, uint16_t local_port, char* target_ip, uint16_t target_port);
+    void (*init)();
     void (*exit)();
     int (*log)(uint8_t level, const char* str, size_t n);
+    int (*shutdown)();
 };
 
 // clang-format off
@@ -258,7 +286,8 @@ struct Litelog litelog =
 {
     .init = Litelog_Init,
     .exit = Litelog_Exit,
-    .log = Litelog_Log
+    .log = Litelog_Log,
+    .shutdown = Litelog_Shutdown,
 };
 // clang-format on
 
