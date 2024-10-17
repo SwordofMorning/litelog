@@ -13,6 +13,7 @@
 #include <sys/select.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -253,6 +254,54 @@ out_return:
     return ret;
 }
 
+int Litelog_Log_Details(uint8_t level, const char* file, int line, const char* func, const char* format, ...)
+{
+    int ret = 0;
+
+    // Valid Check
+    uint8_t valid_levels = LOG_LEVEL_E | LOG_LEVEL_W | LOG_LEVEL_D | LOG_LEVEL_I;
+    if ((level & ~valid_levels) != 0 || (level & (level - 1)) != 0)
+    {
+        ret = -1;
+        goto out_return;
+    }
+
+    // Create Log Message
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+
+    // Get File Name
+    const char* file_name = strrchr(file, '/') ? strrchr(file, '/') + 1 : file;
+
+    // Format Log Message
+    char formatted_log[512];
+    snprintf(formatted_log, sizeof(formatted_log), "%s:%d %s: %s", file_name, line, func, log_buffer);
+
+    // Malloc Buffer
+    size_t log_length = strlen(formatted_log);
+    uint8_t* buffer = (uint8_t*)malloc(log_length + 1);
+    if (buffer == NULL)
+    {
+        ret = -2;
+        goto out_return;
+    }
+
+    // Create Uint8 Data
+    buffer[0] = level;
+    for (size_t i = 0; i < log_length; i++)
+        buffer[i + 1] = (uint8_t)formatted_log[i];
+
+    ret = Litelog_Send(buffer, log_length + 1, monitor);
+
+    free(buffer);
+
+out_return:
+    return ret;
+}
+
 int Litelog_Shutdown()
 {
     uint8_t command[1] = {CTL_STOP_PROGRAM};
@@ -275,14 +324,63 @@ int Litelog_Switch_Page()
 /* ======================================== API ======================================== */
 /* ===================================================================================== */
 
+void Litelog_Log_Error(const char* format, ...)
+{
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_E, log_buffer, strlen(log_buffer));
+}
+
+void Litelog_Log_Warning(const char* format, ...)
+{
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_W, log_buffer, strlen(log_buffer));
+}
+
+void Litelog_Log_Debug(const char* format, ...)
+{
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_D, log_buffer, strlen(log_buffer));
+}
+
+void Litelog_Log_Info(const char* format, ...)
+{
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_I, log_buffer, strlen(log_buffer));
+}
+
+struct LitelogLevel
+{
+    void (*error)(const char* format, ...);
+    void (*warning)(const char* format, ...);
+    void (*debug)(const char* format, ...);
+    void (*info)(const char* format, ...);
+    int (*details)(uint8_t level, const char* file, int line, const char* func, const char* format, ...);
+};
+
 struct Litelog
 {
     void (*init)();
     void (*exit)();
-    int (*log)(uint8_t level, const char* str, size_t n);
     int (*shutdown)();
     int (*change_level)(uint8_t level);
     int (*switch_page)();
+    struct LitelogLevel log;
 };
 
 // clang-format off
@@ -290,10 +388,16 @@ struct Litelog litelog =
 {
     .init = Litelog_Init,
     .exit = Litelog_Exit,
-    .log = Litelog_Log,
     .shutdown = Litelog_Shutdown,
     .change_level = Litelog_Change_Level,
     .switch_page = Litelog_Switch_Page,
+    .log = {
+        .error = Litelog_Log_Error,
+        .warning = Litelog_Log_Warning,
+        .debug = Litelog_Log_Debug,
+        .info = Litelog_Log_Info,
+        .details = Litelog_Log_Details
+    }
 };
 // clang-format on
 
