@@ -370,6 +370,7 @@ struct LitelogLevel
     void (*warning)(const char* format, ...);
     void (*debug)(const char* format, ...);
     void (*info)(const char* format, ...);
+    int (*details)(uint8_t level, const char* file, int line, const char* func, const char* format, ...);
 };
 
 struct Litelog
@@ -394,7 +395,8 @@ struct Litelog litelog =
         .error = Litelog_Log_Error,
         .warning = Litelog_Log_Warning,
         .debug = Litelog_Log_Debug,
-        .info = Litelog_Log_Info
+        .info = Litelog_Log_Info,
+        .details = Litelog_Log_Details
     }
 };
 // clang-format on

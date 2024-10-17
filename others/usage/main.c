@@ -23,7 +23,7 @@ int main()
     litelog.change_level(LOG_LEVEL_D | LOG_LEVEL_E | LOG_LEVEL_I | LOG_LEVEL_W);
     for (int i = 0; i < 10; ++i)
     {
-        Litelog_Log_Details(LOG_LEVEL_D, __FILE__, __LINE__, __func__, "Hello?");
+        litelog.log.details(LOG_LEVEL_D, __FILE__, __LINE__, __func__, "Hello? %d", i);
     }
 
     sleep(1);
