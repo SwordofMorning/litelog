@@ -9,7 +9,8 @@ int main()
     for (int i = 0; i < 10; ++i)
     {
         buffer[0] = '0' + i;
-        litelog.log(1 << i, buffer, sizeof(buffer));
+        // litelog.log(1 << i, buffer, sizeof(buffer));
+        litelog.log.info(buffer);
     }
 
     sleep(1);
@@ -17,7 +18,8 @@ int main()
     for (int i = 0; i < 10; ++i)
     {
         buffer[0] = 'a' + i;
-        litelog.log(1 << i, buffer, sizeof(buffer));
+        // litelog.log(1 << i, buffer, sizeof(buffer));
+        litelog.log.debug("Hahaha %d", i);
     }
 
     sleep(1);
@@ -26,7 +28,7 @@ int main()
     for (int i = 0; i < 10; ++i)
     {
         buffer[0] = 'A' + i;
-        litelog.log(1 << i, buffer, sizeof(buffer));
+        // litelog.log(1 << i, buffer, sizeof(buffer));
     }
 
     litelog.shutdown();

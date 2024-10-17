@@ -13,6 +13,7 @@
 #include <sys/select.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -275,14 +276,57 @@ int Litelog_Switch_Page()
 /* ======================================== API ======================================== */
 /* ===================================================================================== */
 
+void Litelog_Log_Error(const char* format, ...) {
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_E, log_buffer, strlen(log_buffer));
+}
+
+void Litelog_Log_Warning(const char* format, ...) {
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_W, log_buffer, strlen(log_buffer));
+}
+
+void Litelog_Log_Debug(const char* format, ...) {
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_D, log_buffer, strlen(log_buffer));
+}
+
+void Litelog_Log_Info(const char* format, ...) {
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_I, log_buffer, strlen(log_buffer));
+}
+
+struct LitelogLevel {
+    void (*error)(const char* format, ...);
+    void (*warning)(const char* format, ...);
+    void (*debug)(const char* format, ...);
+    void (*info)(const char* format, ...);
+};
+
 struct Litelog
 {
     void (*init)();
     void (*exit)();
-    int (*log)(uint8_t level, const char* str, size_t n);
     int (*shutdown)();
     int (*change_level)(uint8_t level);
     int (*switch_page)();
+    struct LitelogLevel log;
 };
 
 // clang-format off
@@ -290,10 +334,15 @@ struct Litelog litelog =
 {
     .init = Litelog_Init,
     .exit = Litelog_Exit,
-    .log = Litelog_Log,
     .shutdown = Litelog_Shutdown,
     .change_level = Litelog_Change_Level,
     .switch_page = Litelog_Switch_Page,
+    .log = {
+        .error = Litelog_Log_Error,
+        .warning = Litelog_Log_Warning,
+        .debug = Litelog_Log_Debug,
+        .info = Litelog_Log_Info
+    }
 };
 // clang-format on
 
