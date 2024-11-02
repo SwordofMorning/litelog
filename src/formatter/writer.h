@@ -30,8 +30,8 @@
 #include <iostream>
 #include <functional>
 #include <atomic>
-#include "../config/config.h"
-#include "buffer.h"
+#include "../utils/config/config.h"
+#include "../buffer/buffer.h"
 
 class Writer
 {

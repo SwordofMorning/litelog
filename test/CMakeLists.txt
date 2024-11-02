@@ -1,19 +1,13 @@
 FILE(
     GLOB_RECURSE SRC_LIST 
-    ../src/config/*.c
-    ../src/config/*.cpp
-    ../src/socket/*.c
-    ../src/socket/*.cpp
-    ../src/buffer/*.c
-    ../src/buffer/*.cpp
-    ../src/utils/*.c
-    ../src/utils/*.cpp
-    ../src/listen/*.c
-    ../src/listen/*.cpp
+    ../src/*/*.c
+    ../src/*/*.cpp
     ./*.c
     ./*.hpp
     ./*.cpp
 )
+
+LIST(REMOVE_ITEM SRC_LIST "../src/main.cpp") 
 
 LINK_DIRECTORIES(../src)
 

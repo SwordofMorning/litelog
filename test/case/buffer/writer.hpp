@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../../src/buffer/writer.h"
+#include "../../../src/formatter/writer.h"
 #include "../../../src/buffer/buffer.h"
-#include "../../../src/listen/monitor.h"
+#include "../../../src/logger/monitor.h"
 #include "../../utils/utils.h"
 #include <cassert>
 #include <cstdint>

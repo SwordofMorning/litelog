@@ -16,9 +16,9 @@
 #include <functional>
 #include <iomanip>
 #include <queue>
-#include "../socket/socket_p.h"
+#include "../utils/socket/socket_p.h"
 #include "../buffer/buffer.h"
-#include "../utils/threadpool.h"
+#include "../utils/threadpool/threadpool.h"
 
 class Monitor
 {

@@ -1,6 +1,6 @@
 #include "../others/version/version.h"
 #include "env/global.hpp"
-#include "../src/config/config.h"
+#include "../src/utils/config/config.h"
 #include "./case/socket/socket.hpp"
 #include "./case/socket/monitor.hpp"
 #include "./case/buffer/writer.hpp"

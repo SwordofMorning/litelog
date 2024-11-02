@@ -3,9 +3,9 @@
 #include <atomic>
 #include <map>
 #include <functional>
-#include "../socket/socket_p.h"
-#include "monitor.h"
-#include "../buffer/writer.h"
+#include "../utils/socket/socket_p.h"
+#include "../logger/monitor.h"
+#include "../formatter/writer.h"
 
 class Controller
 {
