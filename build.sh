@@ -114,6 +114,13 @@ function func_map()
     fi
 }
 
+function cf()
+{
+    cd ${ProjectPath}
+    find src -name '*.cpp' -o -name '*.h' -o -name '*.c' | xargs clang-format-16 -style=file |\
+        diff -u <(find src -name '*.cpp' -o -name '*.h' -o -name '*.c' | xargs cat) - > .clang-format.diff
+}
+
 #################### Section 4 : Main ####################
 
 function main()
@@ -125,3 +132,4 @@ function main()
 }
 
 main $1
+cf
