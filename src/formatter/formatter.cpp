@@ -61,14 +61,7 @@ void Formatter::Write(const Message& msg)
 {
     std::lock_guard<std::mutex> lock(m_file_mutex);
 
-    // clang-format off
-    const auto& time_info = msg.Get_Time_Info();
-    m_log_file << "["  << time_info.kernel_time << "]"
-               << "["  << time_info.real_time   << "]"
-               << "["  << msg.Get_Level()       << "]"
-               << msg.Get_Content()
-               << std::endl;
-    // clang-format on
+    m_log_file << msg.to_string() << std::endl;
 
     m_log_file.flush();
     ++m_lines_written;

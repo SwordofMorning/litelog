@@ -3,10 +3,10 @@
 /**
  * @file message.h
  * @author master@xiaojintao.email
-
+ * 
  * @brief logger -- message -> buffer
  * which wrap a such log data.
-
+ * 
  * @version 0.1
  * @date 2024-11-02
  * 
@@ -34,13 +34,13 @@ public:
     };
 
 private:
-    // used to sorting in buffer
+    // Index, used to sorting.
     uint64_t m_id;
-    // message time
+    // Time struct.
     TimeInfo m_time_info;
-    // log level
+    // Log level.
     char m_level;
-    // log data
+    // Log String
     std::string m_content;
 
 public:

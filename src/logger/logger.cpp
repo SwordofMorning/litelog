@@ -5,13 +5,18 @@ std::unique_ptr<Logger, std::function<void(Logger*)>> Logger::m_logger = nullptr
 void Logger::Init()
 {
     m_stop_operator = false;
-    m_log_level = LOG_LEVEL_A - 1;
+
+    /* Log level */
+
+    m_log_level = LOG_LEVEL_A;
+    m_log_level_symbol[LOG_LEVEL_F] = 'F';
     m_log_level_symbol[LOG_LEVEL_E] = 'E';
     m_log_level_symbol[LOG_LEVEL_W] = 'W';
-    m_log_level_symbol[LOG_LEVEL_D] = 'D';
+    m_log_level_symbol[LOG_LEVEL_N] = 'N';
     m_log_level_symbol[LOG_LEVEL_I] = 'I';
+    m_log_level_symbol[LOG_LEVEL_D] = 'D';
+    m_log_level_symbol[LOG_LEVEL_T] = 'T';
     m_log_level_symbol[LOG_LEVEL_K] = 'K';
-    m_log_level_symbol[LOG_LEVEL_L] = 'L';
 
     /* Thread: Log push to buffer */
 
