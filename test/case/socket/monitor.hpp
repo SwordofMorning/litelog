@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../src/logger/monitor.h"
+#include "../../../src/logger/logger.h"
 #include "../../../src/buffer/buffer.h"
 #include "../../utils/utils.h"
 #include <thread>

@@ -1,6 +1,6 @@
 #include "controller.h"
 
-Controller::Controller(const char* local_ip, const uint16_t& local_port, const char* target_ip, const uint16_t& target_port, Monitor& monitor, Writer& writer)
+Controller::Controller(const char* local_ip, const uint16_t& local_port, const char* target_ip, const uint16_t& target_port, Logger& monitor, Writer& writer)
     : m_stop(false)
     , m_socket(local_ip, local_port, target_ip, target_port)
     , m_monitor(monitor)
@@ -12,7 +12,7 @@ Controller::Controller(const char* local_ip, const uint16_t& local_port, const c
     this->m_commands[CTL_SWITCH_PAGE] = &Controller::Command_Switch_Page;
 }
 
-Controller::Controller(const std::string& local_ip, const uint16_t& local_port, const std::string& target_ip, const uint16_t& target_port, Monitor& monitor, Writer& writer)
+Controller::Controller(const std::string& local_ip, const uint16_t& local_port, const std::string& target_ip, const uint16_t& target_port, Logger& monitor, Writer& writer)
     : m_stop(false)
     , m_socket(local_ip.c_str(), local_port, target_ip.c_str(), target_port)
     , m_monitor(monitor)

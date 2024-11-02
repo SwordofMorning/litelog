@@ -1,8 +1,8 @@
-#include "monitor.h"
+#include "logger.h"
 
-std::unique_ptr<Monitor, std::function<void(Monitor*)>> Monitor::m_monitor = nullptr;
+std::unique_ptr<Logger, std::function<void(Logger*)>> Logger::m_logger = nullptr;
 
-void Monitor::Init()
+void Logger::Init()
 {
     m_stop_operator = false;
     m_stop_time_thread = false;
@@ -17,37 +17,37 @@ void Monitor::Init()
     /* Thread: Update time */
 
     UpdateTime();
-    m_time_thread = std::thread(&Monitor::TimeLoop, this);
+    m_time_thread = std::thread(&Logger::TimeLoop, this);
 
     /* Thread: Log push to buffer */
 
     m_thread_pool = std::make_unique<ThreadPool>(4);
     for (size_t i = 0; i < 4; ++i)
     {
-        m_thread_pool->Enqueue(std::bind(&Monitor::ProcessLogEntry, this));
+        m_thread_pool->Enqueue(std::bind(&Logger::ProcessLogEntry, this));
     }
 }
 
-Monitor::Monitor(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer)
+Logger::Logger(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer)
     : m_listen2(listen_ip, listen_port)
     , m_buffer(buffer)
 {
     this->Init();
 }
 
-Monitor::Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer)
+Logger::Logger(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer)
     : m_listen2(listen_ip, listen_port)
     , m_buffer(buffer)
 {
     this->Init();
 }
 
-Monitor::~Monitor()
+Logger::~Logger()
 {
     // do nothing
 }
 
-void Monitor::operator()()
+void Logger::operator()()
 {
     uint8_t command_buffer[100];
     int ret = 0;
@@ -73,7 +73,7 @@ void Monitor::operator()()
     }
 }
 
-void Monitor::UpdateTime()
+void Logger::UpdateTime()
 {
     // Get kernel time
     struct timespec kernel_time;
@@ -95,7 +95,7 @@ void Monitor::UpdateTime()
     m_current_real_time = real_time_str;
 }
 
-void Monitor::TimeLoop()
+void Logger::TimeLoop()
 {
     while (!m_stop_time_thread)
     {
@@ -108,7 +108,7 @@ void Monitor::TimeLoop()
     }
 }
 
-void Monitor::PushLogEntry(const std::pair<uint64_t, std::string>& log_entry)
+void Logger::PushLogEntry(const std::pair<uint64_t, std::string>& log_entry)
 {
     {
         std::unique_lock<std::mutex> lock(m_queue_mutex);
@@ -117,7 +117,7 @@ void Monitor::PushLogEntry(const std::pair<uint64_t, std::string>& log_entry)
     m_queue_cv.notify_one();
 }
 
-void Monitor::ProcessLogEntry()
+void Logger::ProcessLogEntry()
 {
     while (!m_stop_operator)
     {
@@ -136,44 +136,44 @@ void Monitor::ProcessLogEntry()
     }
 }
 
-std::function<void()> Monitor::Start(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer)
+std::function<void()> Logger::Start(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer)
 {
     // clang-format off
-    if (!m_monitor)
-        m_monitor = std::unique_ptr<Monitor, std::function<void(Monitor*)>>
-            (new Monitor(listen_ip, listen_port, buffer), [](Monitor* Monitor) { delete Monitor; });
-    return std::bind(&Monitor::operator(), &(*m_monitor));
+    if (!m_logger)
+        m_logger = std::unique_ptr<Logger, std::function<void(Logger*)>>
+            (new Logger(listen_ip, listen_port, buffer), [](Logger* Logger) { delete Logger; });
+    return std::bind(&Logger::operator(), &(*m_logger));
     // clang-format on
 }
 
-std::function<void()> Monitor::Start(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer)
+std::function<void()> Logger::Start(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer)
 {
     // clang-format off
-    if (!m_monitor)
-        m_monitor = std::unique_ptr<Monitor, std::function<void(Monitor*)>>
-            (new Monitor(listen_ip, listen_port, buffer), [](Monitor* Monitor) { delete Monitor; });
-    return std::bind(&Monitor::operator(), &(*m_monitor));
+    if (!m_logger)
+        m_logger = std::unique_ptr<Logger, std::function<void(Logger*)>>
+            (new Logger(listen_ip, listen_port, buffer), [](Logger* Logger) { delete Logger; });
+    return std::bind(&Logger::operator(), &(*m_logger));
     // clang-format on
 }
 
-void Monitor::Stop()
+void Logger::Stop()
 {
-    m_monitor->m_stop_operator = true;
-    m_monitor->m_stop_time_thread = true;
-    m_monitor->m_time_thread.join();
-    m_monitor->m_queue_cv.notify_all();
+    m_logger->m_stop_operator = true;
+    m_logger->m_stop_time_thread = true;
+    m_logger->m_time_thread.join();
+    m_logger->m_queue_cv.notify_all();
 }
 
-void Monitor::Set_Log_Level(uint8_t log_level)
+void Logger::Set_Log_Level(uint8_t log_level)
 {
     m_log_level = log_level;
 }
 
-Monitor& Monitor::Get_Instance()
+Logger& Logger::Get_Instance()
 {
-    if (!m_monitor)
+    if (!m_logger)
     {
         throw std::runtime_error("Writer is not initialized");
     }
-    return *m_monitor.get();
+    return *m_logger.get();
 }
