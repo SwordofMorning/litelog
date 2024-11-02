@@ -5,7 +5,6 @@ std::unique_ptr<Logger, std::function<void(Logger*)>> Logger::m_logger = nullptr
 void Logger::Init()
 {
     m_stop_operator = false;
-    m_stop_time_thread = false;
     m_log_level = LOG_LEVEL_A - 1;
     m_log_level_symbol[LOG_LEVEL_E] = 'E';
     m_log_level_symbol[LOG_LEVEL_W] = 'W';
@@ -13,11 +12,6 @@ void Logger::Init()
     m_log_level_symbol[LOG_LEVEL_I] = 'I';
     m_log_level_symbol[LOG_LEVEL_K] = 'K';
     m_log_level_symbol[LOG_LEVEL_L] = 'L';
-
-    /* Thread: Update time */
-
-    UpdateTime();
-    m_time_thread = std::thread(&Logger::TimeLoop, this);
 
     /* Thread: Log push to buffer */
 
@@ -64,47 +58,21 @@ void Logger::operator()()
             {
                 std::string log_entry;
                 {
-                    std::unique_lock<std::mutex> lock(m_time_mtx);
-                    log_entry = "[" + m_current_kernel_time + "][" + m_current_real_time + "][" + m_log_level_symbol[log_level] + "]" + log;
+                    // clang-format off
+                    std::unique_lock<std::mutex> lock(g_time_mutex);
+                    log_entry = 
+                            "[" + 
+                            std::to_string(g_kernel_uptime.load()) + 
+                            "][" + 
+                            g_real_time + 
+                            "][" + 
+                            m_log_level_symbol[log_level] + "]" + 
+                            log;
+                    // clang-format on
                 }
                 PushLogEntry(std::make_pair(log_id++, log_entry));
             }
         }
-    }
-}
-
-void Logger::UpdateTime()
-{
-    // Get kernel time
-    struct timespec kernel_time;
-    clock_gettime(CLOCK_MONOTONIC, &kernel_time);
-
-    // Calculate kernel uptime in seconds
-    long kernel_uptime = kernel_time.tv_sec;
-
-    // Get real time
-    struct timespec real_time;
-    clock_gettime(CLOCK_REALTIME, &real_time);
-
-    // Format real time
-    char real_time_str[64];
-    strftime(real_time_str, sizeof(real_time_str), "%Y-%m-%d %H:%M:%S", localtime(&real_time.tv_sec));
-
-    // Update m_current_kernel_time and m_current_real_time
-    m_current_kernel_time = std::to_string(kernel_uptime);
-    m_current_real_time = real_time_str;
-}
-
-void Logger::TimeLoop()
-{
-    while (!m_stop_time_thread)
-    {
-        // Shorten the duration of mutex
-        {
-            std::unique_lock<std::mutex> lock(m_time_mtx);
-            UpdateTime();
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 }
 
@@ -159,8 +127,6 @@ std::function<void()> Logger::Start(const std::string& listen_ip, const uint16_t
 void Logger::Stop()
 {
     m_logger->m_stop_operator = true;
-    m_logger->m_stop_time_thread = true;
-    m_logger->m_time_thread.join();
     m_logger->m_queue_cv.notify_all();
 }
 
