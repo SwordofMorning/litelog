@@ -2,12 +2,15 @@
 #include "utils/config/config.h"
 #include "buffer/buffer.h"
 #include "formatter/formatter.h"
+#include "logger/clock.h"
 #include "logger/logger.h"
 #include "controller/controller.h"
 
 int main()
 {
     Init();
+
+    Clock::Start();
 
     Buffer buff(l1_cap, l2_cap);
     std::thread logger{Logger::Start(listen_ip, listen_port, buff)};
@@ -25,4 +28,7 @@ int main()
     logger.join();
     Formatter::Stop();
     formatter.join();
+    Clock::Stop();
+
+    return 0;
 }

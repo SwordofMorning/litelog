@@ -19,6 +19,7 @@
 #include "../utils/socket/socket_p.h"
 #include "../buffer/buffer.h"
 #include "../utils/threadpool/threadpool.h"
+#include "../utils/global/global.h"
 
 class Logger
 {
@@ -38,18 +39,9 @@ private:
     uint8_t m_log_level;
     std::map<uint8_t, char> m_log_level_symbol;
 
-    std::string m_current_kernel_time;
-    std::string m_current_real_time;
-    std::thread m_time_thread;
-    bool m_stop_time_thread;
-    std::mutex m_time_mtx;
-
     static std::unique_ptr<Logger, std::function<void(Logger*)>> m_logger;
 
     void operator()();
-
-    void UpdateTime();
-    void TimeLoop();
 
     std::queue<std::pair<uint64_t, std::string>> m_log_queue;
     std::mutex m_queue_mutex;
