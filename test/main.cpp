@@ -1,6 +1,6 @@
 #include "../others/version/version.h"
 #include "env/global.hpp"
-#include "../src/config/config.h"
+#include "../src/utils/config/config.h"
 #include "./case/socket/socket.hpp"
 #include "./case/socket/monitor.hpp"
 #include "./case/buffer/writer.hpp"
@@ -18,7 +18,7 @@ int main()
     Version();
 
     printf("[==========] Test Begin.\n");
-    std::thread monitor{Monitor::Start("127.0.0.1", 12345, buf)};
+    std::thread logger{Logger::Start("127.0.0.1", 12345, buf)};
     printf("[----------] Global test environment set-up.\n");
 
     RUN_TEST_CASE(socket_unidirectional);
@@ -28,8 +28,8 @@ int main()
     RUN_TEST_CASE(writer_write_from_buffer);
 
     printf("[----------] Global test environment tear-down.\n");
-    Monitor::Stop();
-    monitor.join();
+    Logger::Stop();
+    logger.join();
     print_test_results();
 
     return 0;

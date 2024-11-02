@@ -1,8 +1,8 @@
-#include "writer.h"
+#include "formatter.h"
 
-std::unique_ptr<Writer, std::function<void(Writer*)>> Writer::m_writer = nullptr;
+std::unique_ptr<Formatter, std::function<void(Formatter*)>> Formatter::m_formatter = nullptr;
 
-Writer::Writer(const std::string& log_path, Buffer& buffer, size_t max_log_lines)
+Formatter::Formatter(const std::string& log_path, Buffer& buffer, size_t max_log_lines)
     : m_buffer(buffer)
     , m_stop_write(false)
     , m_max_log_lines(max_log_lines)
@@ -11,12 +11,12 @@ Writer::Writer(const std::string& log_path, Buffer& buffer, size_t max_log_lines
     Init();
 }
 
-Writer::~Writer()
+Formatter::~Formatter()
 {
     Exit();
 }
 
-void Writer::Init()
+void Formatter::Init()
 {
     /* Step 1: Get Time */
 
@@ -40,12 +40,12 @@ void Writer::Init()
     Info(time_string);
 }
 
-void Writer::Exit()
+void Formatter::Exit()
 {
     m_log_file.close();
 }
 
-void Writer::Info(const std::string& str_time)
+void Formatter::Info(const std::string& str_time)
 {
     Write("===== litlog Information =====");
 
@@ -57,7 +57,7 @@ void Writer::Info(const std::string& str_time)
     Write("===== litlog Set-up =====");
 }
 
-void Writer::Write(const std::string& str)
+void Formatter::Write(const std::string& str)
 {
     std::lock_guard<std::mutex> lock(m_file_mutex);
     m_log_file << str << std::endl;
@@ -65,7 +65,7 @@ void Writer::Write(const std::string& str)
     ++m_lines_written;
 }
 
-void Writer::operator()()
+void Formatter::operator()()
 {
     while (!m_stop_write)
     {
@@ -89,23 +89,23 @@ void Writer::operator()()
     }
 }
 
-std::function<void()> Writer::Start(const std::string& log_path, Buffer& buffer, size_t max_log_lines)
+std::function<void()> Formatter::Start(const std::string& log_path, Buffer& buffer, size_t max_log_lines)
 {
     // clang-format off
-    if (!m_writer)
-        m_writer = std::unique_ptr<Writer, std::function<void(Writer*)>>
-            (new Writer(log_path, buffer, max_log_lines), [](Writer* Writer) { delete Writer; });
-    return std::bind(&Writer::operator(), &(*m_writer));
+    if (!m_formatter)
+        m_formatter = std::unique_ptr<Formatter, std::function<void(Formatter*)>>
+            (new Formatter(log_path, buffer, max_log_lines), [](Formatter* Formatter) { delete Formatter; });
+    return std::bind(&Formatter::operator(), &(*m_formatter));
     // clang-format on
 }
 
-void Writer::Stop()
+void Formatter::Stop()
 {
-    m_writer->m_stop_write = true;
-    m_writer->Write("===== litlog Tear-down =====");
+    m_formatter->m_stop_write = true;
+    m_formatter->Write("===== litlog Tear-down =====");
 }
 
-void Writer::Switch()
+void Formatter::Switch()
 {
     Write("===== litlog Switch-page =====");
     Exit();
@@ -113,11 +113,11 @@ void Writer::Switch()
     Init();
 }
 
-Writer& Writer::Get_Instance()
+Formatter& Formatter::Get_Instance()
 {
-    if (!m_writer)
+    if (!m_formatter)
     {
-        throw std::runtime_error("Writer is not initialized");
+        throw std::runtime_error("Formatter is not initialized");
     }
-    return *m_writer.get();
+    return *m_formatter.get();
 }

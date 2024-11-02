@@ -198,13 +198,13 @@ struct sockaddr_in controller;
 void Litelog_Init()
 {
     char* local_ip = "127.0.0.1";
-    uint16_t local_port = 12347;
+    uint16_t local_port = 50000;
 
     char* monitor_ip = "127.0.0.1";
-    uint16_t monitor_port = 12345;
+    uint16_t monitor_port = 20000;
 
     char controller_ip[] = "127.0.0.1";
-    uint16_t controller_port = 12346;
+    uint16_t controller_port = 20001;
 
     Socket_Init(&local, local_ip, local_port);
     Socket_Create_Target(&monitor, monitor_ip, monitor_port);

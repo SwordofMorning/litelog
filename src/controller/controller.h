@@ -3,26 +3,26 @@
 #include <atomic>
 #include <map>
 #include <functional>
-#include "../socket/socket_p.h"
-#include "monitor.h"
-#include "../buffer/writer.h"
+#include "../utils/socket/socket_p.h"
+#include "../logger/logger.h"
+#include "../formatter/formatter.h"
 
 class Controller
 {
 private:
     Socket m_socket;
-    Monitor& m_monitor;
-    Writer& m_writer;
+    Logger& m_monitor;
+    Formatter& m_Formatter;
     std::atomic<bool> m_stop;
 
 public:
     // clang-format off
     Controller(const char* local_ip, const uint16_t& local_port, 
         const char* target_ip, const uint16_t& target_port,
-        Monitor& monitor, Writer& writer);
+        Logger& monitor, Formatter& Formatter);
     Controller(const std::string& local_ip, const uint16_t& local_port, 
         const std::string& target_ip, const uint16_t& target_port,
-        Monitor& monitor, Writer& writer);
+        Logger& monitor, Formatter& Formatter);
     // clang-format on
 
     void operator()();
