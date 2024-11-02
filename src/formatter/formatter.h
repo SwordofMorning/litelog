@@ -32,6 +32,7 @@
 #include <atomic>
 #include "../utils/config/config.h"
 #include "../buffer/buffer.h"
+#include "../logger/message.h"
 
 class Formatter
 {
@@ -57,6 +58,7 @@ private:
 
     static std::unique_ptr<Formatter, std::function<void(Formatter*)>> m_formatter;
 
+    void Write(const Message& msg);
     void Write(const std::string& str);
     void operator()();
 

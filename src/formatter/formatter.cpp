@@ -57,6 +57,23 @@ void Formatter::Info(const std::string& str_time)
     Write("===== litlog Set-up =====");
 }
 
+void Formatter::Write(const Message& msg)
+{
+    std::lock_guard<std::mutex> lock(m_file_mutex);
+
+    // clang-format off
+    const auto& time_info = msg.Get_Time_Info();
+    m_log_file << "["  << time_info.kernel_time << "]"
+               << "["  << time_info.real_time   << "]"
+               << "["  << msg.Get_Level()       << "]"
+               << msg.Get_Content()
+               << std::endl;
+    // clang-format on
+
+    m_log_file.flush();
+    ++m_lines_written;
+}
+
 void Formatter::Write(const std::string& str)
 {
     std::lock_guard<std::mutex> lock(m_file_mutex);
@@ -76,14 +93,15 @@ void Formatter::operator()()
                 Switch();
         }
 
-        /**
-         * @todo Paging is not strictly based on m_max_log_lines.
-         */
-
         {
             std::unique_lock<std::mutex> lock(m_write_mutex);
             while (!m_buffer.IsL2Empty())
-                Write(m_buffer.Pull(std::chrono::milliseconds(10)));
+            {
+                Message msg = m_buffer.Pull(std::chrono::milliseconds(10));
+                if (msg.Get_Content().empty())
+                    continue;
+                Write(msg);
+            }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }

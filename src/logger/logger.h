@@ -20,6 +20,7 @@
 #include "../buffer/buffer.h"
 #include "../utils/threadpool/threadpool.h"
 #include "../utils/global/global.h"
+#include "message.h"
 
 class Logger
 {
@@ -43,12 +44,12 @@ private:
 
     void operator()();
 
-    std::queue<std::pair<uint64_t, std::string>> m_log_queue;
+    std::queue<Message> m_log_queue;
     std::mutex m_queue_mutex;
     std::condition_variable m_queue_cv;
     std::unique_ptr<ThreadPool> m_thread_pool;
 
-    void PushLogEntry(const std::pair<uint64_t, std::string>& log_entry);
+    void PushLogEntry(const Message& msg);
     void ProcessLogEntry();
 
 public:
