@@ -1,10 +1,10 @@
 #include "controller.h"
 
-Controller::Controller(const char* local_ip, const uint16_t& local_port, const char* target_ip, const uint16_t& target_port, Logger& monitor, Writer& writer)
+Controller::Controller(const char* local_ip, const uint16_t& local_port, const char* target_ip, const uint16_t& target_port, Logger& monitor, Formatter& Formatter)
     : m_stop(false)
     , m_socket(local_ip, local_port, target_ip, target_port)
     , m_monitor(monitor)
-    , m_writer(writer)
+    , m_Formatter(Formatter)
 {
     // Function Map
     this->m_commands[CTL_STOP_PROGRAM] = &Controller::Command_Stop_Program;
@@ -12,11 +12,11 @@ Controller::Controller(const char* local_ip, const uint16_t& local_port, const c
     this->m_commands[CTL_SWITCH_PAGE] = &Controller::Command_Switch_Page;
 }
 
-Controller::Controller(const std::string& local_ip, const uint16_t& local_port, const std::string& target_ip, const uint16_t& target_port, Logger& monitor, Writer& writer)
+Controller::Controller(const std::string& local_ip, const uint16_t& local_port, const std::string& target_ip, const uint16_t& target_port, Logger& monitor, Formatter& Formatter)
     : m_stop(false)
     , m_socket(local_ip.c_str(), local_port, target_ip.c_str(), target_port)
     , m_monitor(monitor)
-    , m_writer(writer)
+    , m_Formatter(Formatter)
 {
     // Function Map
     this->m_commands[CTL_STOP_PROGRAM] = &Controller::Command_Stop_Program;
@@ -79,6 +79,6 @@ int Controller::Command_Change_Log_Level(uint8_t* command_offset, uint8_t* resul
 
 int Controller::Command_Switch_Page(uint8_t* command_offset, uint8_t* result)
 {
-    m_writer.Switch();
+    m_Formatter.Switch();
     return 0;
 }

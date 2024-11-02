@@ -33,13 +33,13 @@
 #include "../utils/config/config.h"
 #include "../buffer/buffer.h"
 
-class Writer
+class Formatter
 {
 private:
-    Writer(const std::string& log_path, Buffer& buffer, size_t max_log_lines);
-    ~Writer();
-    Writer() = delete;
-    void operator=(const Writer&) = delete;
+    Formatter(const std::string& log_path, Buffer& buffer, size_t max_log_lines);
+    ~Formatter();
+    Formatter() = delete;
+    void operator=(const Formatter&) = delete;
 
     std::ofstream m_log_file;
     std::mutex m_file_mutex;
@@ -55,7 +55,7 @@ private:
     void Exit();
     void Info(const std::string& str_time);
 
-    static std::unique_ptr<Writer, std::function<void(Writer*)>> m_writer;
+    static std::unique_ptr<Formatter, std::function<void(Formatter*)>> m_formatter;
 
     void Write(const std::string& str);
     void operator()();
@@ -65,5 +65,5 @@ public:
     static void Stop();
     void Switch();
 
-    static Writer& Get_Instance();
+    static Formatter& Get_Instance();
 };
