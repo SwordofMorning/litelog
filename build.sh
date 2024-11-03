@@ -117,7 +117,8 @@ function func_map()
 function cf()
 {
     cd ${ProjectPath}
-find src -name '*.cpp' -o -name '*.h' -o -name '*.c' | xargs -I{} bash -c 'clang-format-16 -style=file {} | diff -u -L "{}" -L "{}" {} -' > .clang-format.diff
+    find src test others -name '*.cpp' -o -name '*.h' -o -name '*.c' | \
+        xargs -I{} bash -c 'clang-format-16 -style=file {} | diff -u -L "{}" -L "{}" {} -' > .clang-format.diff
 }
 
 #################### Section 4 : Main ####################

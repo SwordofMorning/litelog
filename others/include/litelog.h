@@ -264,9 +264,9 @@ int Litelog_Log(uint8_t level, const char* str, size_t n)
         goto out_return;
     }
 
-    // 计算程序名长度（包括方括号）
+    // Calculate length
     size_t program_name_len = strlen(program_name);
-    
+
     // Malloc Buffer: level(1) + program_name + content
     uint8_t* buffer = (uint8_t*)malloc(1 + program_name_len + n);
     if (buffer == NULL)
@@ -275,10 +275,10 @@ int Litelog_Log(uint8_t level, const char* str, size_t n)
         goto out_return;
     }
 
-    // 填充数据
-    buffer[0] = level;                                    // 日志级别
-    memcpy(buffer + 1, program_name, program_name_len);  // 程序名
-    memcpy(buffer + 1 + program_name_len, str, n);       // 日志内容
+    // Fill data
+    buffer[0] = level;
+    memcpy(buffer + 1, program_name, program_name_len);
+    memcpy(buffer + 1 + program_name_len, str, n);
 
     ret = Litelog_Send(buffer, 1 + program_name_len + n, monitor);
 
@@ -288,7 +288,7 @@ out_return:
     return ret;
 }
 
-int Litelog_Log_Precise (uint8_t level, const char* file, int line, const char* func, const char* format, ...)
+int Litelog_Log_Manual(uint8_t level, const char* file, int line, const char* func, const char* format, ...)
 {
     int ret = 0;
 
@@ -312,13 +312,12 @@ int Litelog_Log_Precise (uint8_t level, const char* file, int line, const char* 
 
     // Format Log Message
     char formatted_log[512];
-    snprintf(formatted_log, sizeof(formatted_log), "%s:%d %s: %s", 
-             file_name, line, func, log_buffer);
+    snprintf(formatted_log, sizeof(formatted_log), "%s:%d %s: %s", file_name, line, func, log_buffer);
 
-    // 计算长度
+    // Calculate length
     size_t program_name_len = strlen(program_name);
     size_t log_length = strlen(formatted_log);
-    
+
     // Malloc Buffer
     uint8_t* buffer = (uint8_t*)malloc(1 + program_name_len + log_length);
     if (buffer == NULL)
@@ -327,11 +326,10 @@ int Litelog_Log_Precise (uint8_t level, const char* file, int line, const char* 
         goto out_return;
     }
 
-    // 填充数据
-    buffer[0] = level;                                    // 日志级别
-    memcpy(buffer + 1, program_name, program_name_len);  // 程序名
-    memcpy(buffer + 1 + program_name_len,                // 日志内容
-           formatted_log, log_length);
+    // Fill data
+    buffer[0] = level;
+    memcpy(buffer + 1, program_name, program_name_len);
+    memcpy(buffer + 1 + program_name_len, formatted_log, log_length);
 
     ret = Litelog_Send(buffer, 1 + program_name_len + log_length, monitor);
 
@@ -442,7 +440,7 @@ struct LitelogLevel
     void (*info)(const char* format, ...);
     void (*debug)(const char* format, ...);
     void (*trace)(const char* format, ...);
-    int (*precise)(uint8_t level, const char* file, int line, const char* func, const char* format, ...);
+    int (*manual)(uint8_t level, const char* file, int line, const char* func, const char* format, ...);
 };
 
 struct Litelog
@@ -471,7 +469,7 @@ struct Litelog litelog =
         .info = Litelog_Log_Info,
         .debug = Litelog_Log_Debug,
         .trace = Litelog_Log_Trace,
-        .precise  = Litelog_Log_Precise 
+        .manual  = Litelog_Log_Manual
     }
 };
 // clang-format on

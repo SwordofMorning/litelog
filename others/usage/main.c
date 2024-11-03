@@ -19,7 +19,7 @@ int main()
     for (int i = 0; i < 10; ++i)
     {
         printf("Send2: %d\n", 1 << i);
-        litelog.log.precise(1 << i, __FILE__, __LINE__, __func__, "Send 2: %d", i);
+        litelog.log.manual(1 << i, __FILE__, __LINE__, __func__, "Send 2: %d", i);
     }
 
     sleep(1);
