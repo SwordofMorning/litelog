@@ -23,24 +23,51 @@ extern "C" {
 /* ======================================== Define ======================================== */
 /* ======================================================================================== */
 
+/* Log Level */
 enum
 {
-    // Silence
+    // Silence, 0000 0000
     LOG_LEVEL_S = 0,
-    // Error
-    LOG_LEVEL_E = 1 << 0,
-    // Warning
-    LOG_LEVEL_W = 1 << 1,
-    // Debug
-    LOG_LEVEL_D = 1 << 2,
-    // Info
-    LOG_LEVEL_I = 1 << 3,
-    // Kernel
-    LOG_LEVEL_K = 1 << 4,
-    // Litelog itself
-    LOG_LEVEL_L = 1 << 5,
-    // All
-    LOG_LEVEL_A = 1 << 6,
+
+    // Fatal, 0000 0001
+    LOG_LEVEL_F = 1 << 0,
+
+    // Error, 0000 0010
+    LOG_LEVEL_E = 1 << 1,
+
+    // Warning, 0000 0100
+    LOG_LEVEL_W = 1 << 2,
+
+    // Notice, 0000 1000
+    LOG_LEVEL_N = 1 << 3,
+
+    // Info, 0001 0000
+    LOG_LEVEL_I = 1 << 4,
+
+    // Debug, 0010 0000
+    LOG_LEVEL_D = 1 << 5,
+
+    // Trace, 0100 0000
+    LOG_LEVEL_T = 1 << 6,
+
+    // Kernel, 1000 0000
+    LOG_LEVEL_K = 1 << 7,
+
+    // All, 1111 1111
+    LOG_LEVEL_A = 0xFF
+};
+
+/* Log Level Combine */
+enum
+{
+    // Fatal, Error, Warning, Notice, Info
+    LOG_LEVEL_PRODUCTION = LOG_LEVEL_F | LOG_LEVEL_E | LOG_LEVEL_W | LOG_LEVEL_N | LOG_LEVEL_I,
+
+    // Fatal, Error, Warning, Notice, Info, Debug, Trace
+    LOG_LEVEL_DEVELOPMENT = LOG_LEVEL_PRODUCTION | LOG_LEVEL_D | LOG_LEVEL_T,
+
+    // Fatal, Error, Warning, Notice, Info, Debug, Trace, Kernel
+    LOG_LEVEL_FULL = LOG_LEVEL_A
 };
 
 enum
@@ -195,7 +222,11 @@ struct sockaddr_in monitor;
 // local of controller
 struct sockaddr_in controller;
 
-void Litelog_Init()
+#define PROGRAM_NAME_DISPLAY_WIDTH 15
+#define PROGRAM_NAME_BUFFER_SIZE (PROGRAM_NAME_DISPLAY_WIDTH + 5)
+static char program_name[PROGRAM_NAME_BUFFER_SIZE] = {0};
+
+void Litelog_Init(const char* p_program_name)
 {
     char* local_ip = "127.0.0.1";
     uint16_t local_port = 50000;
@@ -209,6 +240,24 @@ void Litelog_Init()
     Socket_Init(&local, local_ip, local_port);
     Socket_Create_Target(&monitor, monitor_ip, monitor_port);
     Socket_Create_Target(&controller, controller_ip, controller_port);
+
+    // Program Name
+    size_t name_len = strlen(p_program_name);
+    if (name_len <= PROGRAM_NAME_DISPLAY_WIDTH)
+    {
+        snprintf(program_name, PROGRAM_NAME_BUFFER_SIZE, "[%s]", p_program_name);
+    }
+    else
+    {
+        // The program name is too long and needs to be truncated
+        char truncated_name[PROGRAM_NAME_DISPLAY_WIDTH + 1];
+        strncpy(truncated_name, p_program_name, PROGRAM_NAME_DISPLAY_WIDTH - 3);
+        truncated_name[PROGRAM_NAME_DISPLAY_WIDTH - 3] = '.';
+        truncated_name[PROGRAM_NAME_DISPLAY_WIDTH - 2] = '.';
+        truncated_name[PROGRAM_NAME_DISPLAY_WIDTH - 1] = '.';
+        truncated_name[PROGRAM_NAME_DISPLAY_WIDTH] = '\0';
+        snprintf(program_name, PROGRAM_NAME_BUFFER_SIZE, "[%s]", truncated_name);
+    }
 }
 
 void Litelog_Exit()
@@ -226,27 +275,30 @@ int Litelog_Log(uint8_t level, const char* str, size_t n)
     int ret = 0;
 
     // Valid Check
-    uint8_t valid_levels = LOG_LEVEL_E | LOG_LEVEL_W | LOG_LEVEL_D | LOG_LEVEL_I;
+    uint8_t valid_levels = ~LOG_LEVEL_K & 0xFF;
     if ((level & ~valid_levels) != 0 || (level & (level - 1)) != 0)
     {
         ret = -1;
         goto out_return;
     }
 
-    // Malloc Buffer
-    uint8_t* buffer = (uint8_t*)malloc(n + 1);
+    // Calculate length
+    size_t program_name_len = strlen(program_name);
+
+    // Malloc Buffer: level(1) + program_name + content
+    uint8_t* buffer = (uint8_t*)malloc(1 + program_name_len + n);
     if (buffer == NULL)
     {
         ret = -2;
         goto out_return;
     }
 
-    // Create Uint8 Data
+    // Fill data
     buffer[0] = level;
-    for (size_t i = 0; i < n; i++)
-        buffer[i + 1] = (uint8_t)str[i];
+    memcpy(buffer + 1, program_name, program_name_len);
+    memcpy(buffer + 1 + program_name_len, str, n);
 
-    ret = Litelog_Send(buffer, n + 1, monitor);
+    ret = Litelog_Send(buffer, 1 + program_name_len + n, monitor);
 
     free(buffer);
 
@@ -254,12 +306,12 @@ out_return:
     return ret;
 }
 
-int Litelog_Log_Details(uint8_t level, const char* file, int line, const char* func, const char* format, ...)
+int Litelog_Log_Manual(uint8_t level, const char* file, int line, const char* func, const char* format, ...)
 {
     int ret = 0;
 
     // Valid Check
-    uint8_t valid_levels = LOG_LEVEL_E | LOG_LEVEL_W | LOG_LEVEL_D | LOG_LEVEL_I;
+    uint8_t valid_levels = ~LOG_LEVEL_K & 0xFF;
     if ((level & ~valid_levels) != 0 || (level & (level - 1)) != 0)
     {
         ret = -1;
@@ -280,21 +332,24 @@ int Litelog_Log_Details(uint8_t level, const char* file, int line, const char* f
     char formatted_log[512];
     snprintf(formatted_log, sizeof(formatted_log), "%s:%d %s: %s", file_name, line, func, log_buffer);
 
-    // Malloc Buffer
+    // Calculate length
+    size_t program_name_len = strlen(program_name);
     size_t log_length = strlen(formatted_log);
-    uint8_t* buffer = (uint8_t*)malloc(log_length + 1);
+
+    // Malloc Buffer
+    uint8_t* buffer = (uint8_t*)malloc(1 + program_name_len + log_length);
     if (buffer == NULL)
     {
         ret = -2;
         goto out_return;
     }
 
-    // Create Uint8 Data
+    // Fill data
     buffer[0] = level;
-    for (size_t i = 0; i < log_length; i++)
-        buffer[i + 1] = (uint8_t)formatted_log[i];
+    memcpy(buffer + 1, program_name, program_name_len);
+    memcpy(buffer + 1 + program_name_len, formatted_log, log_length);
 
-    ret = Litelog_Send(buffer, log_length + 1, monitor);
+    ret = Litelog_Send(buffer, 1 + program_name_len + log_length, monitor);
 
     free(buffer);
 
@@ -324,6 +379,16 @@ int Litelog_Switch_Page()
 /* ======================================== API ======================================== */
 /* ===================================================================================== */
 
+void Litelog_Log_Fatal(const char* format, ...)
+{
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_F, log_buffer, strlen(log_buffer));
+}
+
 void Litelog_Log_Error(const char* format, ...)
 {
     char log_buffer[256];
@@ -344,14 +409,14 @@ void Litelog_Log_Warning(const char* format, ...)
     Litelog_Log(LOG_LEVEL_W, log_buffer, strlen(log_buffer));
 }
 
-void Litelog_Log_Debug(const char* format, ...)
+void Litelog_Log_Notice(const char* format, ...)
 {
     char log_buffer[256];
     va_list args;
     va_start(args, format);
     vsnprintf(log_buffer, sizeof(log_buffer), format, args);
     va_end(args);
-    Litelog_Log(LOG_LEVEL_D, log_buffer, strlen(log_buffer));
+    Litelog_Log(LOG_LEVEL_N, log_buffer, strlen(log_buffer));
 }
 
 void Litelog_Log_Info(const char* format, ...)
@@ -364,18 +429,41 @@ void Litelog_Log_Info(const char* format, ...)
     Litelog_Log(LOG_LEVEL_I, log_buffer, strlen(log_buffer));
 }
 
+void Litelog_Log_Debug(const char* format, ...)
+{
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_D, log_buffer, strlen(log_buffer));
+}
+
+void Litelog_Log_Trace(const char* format, ...)
+{
+    char log_buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(log_buffer, sizeof(log_buffer), format, args);
+    va_end(args);
+    Litelog_Log(LOG_LEVEL_T, log_buffer, strlen(log_buffer));
+}
+
 struct LitelogLevel
 {
+    void (*fatal)(const char* format, ...);
     void (*error)(const char* format, ...);
     void (*warning)(const char* format, ...);
-    void (*debug)(const char* format, ...);
+    void (*notice)(const char* format, ...);
     void (*info)(const char* format, ...);
-    int (*details)(uint8_t level, const char* file, int line, const char* func, const char* format, ...);
+    void (*debug)(const char* format, ...);
+    void (*trace)(const char* format, ...);
+    int (*manual)(uint8_t level, const char* file, int line, const char* func, const char* format, ...);
 };
 
 struct Litelog
 {
-    void (*init)();
+    void (*init)(const char* p_program_name);
     void (*exit)();
     int (*shutdown)();
     int (*change_level)(uint8_t level);
@@ -392,11 +480,14 @@ struct Litelog litelog =
     .change_level = Litelog_Change_Level,
     .switch_page = Litelog_Switch_Page,
     .log = {
+        .fatal = Litelog_Log_Fatal,
         .error = Litelog_Log_Error,
         .warning = Litelog_Log_Warning,
-        .debug = Litelog_Log_Debug,
+        .notice = Litelog_Log_Notice,
         .info = Litelog_Log_Info,
-        .details = Litelog_Log_Details
+        .debug = Litelog_Log_Debug,
+        .trace = Litelog_Log_Trace,
+        .manual  = Litelog_Log_Manual
     }
 };
 // clang-format on

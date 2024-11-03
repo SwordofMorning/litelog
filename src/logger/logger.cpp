@@ -5,13 +5,18 @@ std::unique_ptr<Logger, std::function<void(Logger*)>> Logger::m_logger = nullptr
 void Logger::Init()
 {
     m_stop_operator = false;
-    m_log_level = LOG_LEVEL_A - 1;
+
+    /* Log level */
+
+    m_log_level = LOG_LEVEL_A;
+    m_log_level_symbol[LOG_LEVEL_F] = 'F';
     m_log_level_symbol[LOG_LEVEL_E] = 'E';
     m_log_level_symbol[LOG_LEVEL_W] = 'W';
-    m_log_level_symbol[LOG_LEVEL_D] = 'D';
+    m_log_level_symbol[LOG_LEVEL_N] = 'N';
     m_log_level_symbol[LOG_LEVEL_I] = 'I';
+    m_log_level_symbol[LOG_LEVEL_D] = 'D';
+    m_log_level_symbol[LOG_LEVEL_T] = 'T';
     m_log_level_symbol[LOG_LEVEL_K] = 'K';
-    m_log_level_symbol[LOG_LEVEL_L] = 'L';
 
     /* Thread: Log push to buffer */
 
@@ -53,34 +58,33 @@ void Logger::operator()()
         if (ret > 0)
         {
             uint8_t log_level = command_buffer[0];
-            std::string log(command_buffer + 1, command_buffer + ret);
+            std::string content(command_buffer + 1, command_buffer + ret);
+
+            // clang-format off
             if (log_level & m_log_level)
             {
-                std::string log_entry;
-                {
-                    // clang-format off
-                    std::unique_lock<std::mutex> lock(g_time_mutex);
-                    log_entry = 
-                            "[" + 
-                            std::to_string(g_kernel_uptime.load()) + 
-                            "][" + 
-                            g_real_time + 
-                            "][" + 
-                            m_log_level_symbol[log_level] + "]" + 
-                            log;
-                    // clang-format on
-                }
-                PushLogEntry(std::make_pair(log_id++, log_entry));
+                Message msg(
+                    log_id++,                         // 消息ID
+                    Message::TimeInfo(                // 时间信息
+                        g_kernel_uptime.load(),       // 内核时间
+                        g_real_time                   // 真实时间
+                    ),
+                    m_log_level_symbol[log_level],    // 日志级别
+                    content                           // 日志内容
+                );
+                
+                PushLogEntry(msg);
             }
+            // clang-format on
         }
     }
 }
 
-void Logger::PushLogEntry(const std::pair<uint64_t, std::string>& log_entry)
+void Logger::PushLogEntry(const Message& msg)
 {
     {
         std::unique_lock<std::mutex> lock(m_queue_mutex);
-        m_log_queue.push(log_entry);
+        m_log_queue.push(msg);
     }
     m_queue_cv.notify_one();
 }
@@ -89,7 +93,7 @@ void Logger::ProcessLogEntry()
 {
     while (!m_stop_operator)
     {
-        std::pair<uint64_t, std::string> log_entry;
+        Message msg;
         {
             std::unique_lock<std::mutex> lock(m_queue_mutex);
             m_queue_cv.wait(lock, [this] {
@@ -97,10 +101,11 @@ void Logger::ProcessLogEntry()
             });
             if (m_stop_operator && m_log_queue.empty())
                 break;
-            log_entry = m_log_queue.front();
+
+            msg = m_log_queue.front();
             m_log_queue.pop();
         }
-        m_buffer.Push(log_entry);
+        m_buffer.Push(msg);
     }
 }
 

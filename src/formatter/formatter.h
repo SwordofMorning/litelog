@@ -32,6 +32,7 @@
 #include <atomic>
 #include "../utils/config/config.h"
 #include "../buffer/buffer.h"
+#include "../logger/message.h"
 
 class Formatter
 {
@@ -57,8 +58,13 @@ private:
 
     static std::unique_ptr<Formatter, std::function<void(Formatter*)>> m_formatter;
 
+    void Write(const Message& msg);
     void Write(const std::string& str);
     void operator()();
+
+    static constexpr int KERNEL_TIME_WIDTH = 8;
+    static constexpr int PROGRAM_NAME_WIDTH = 15;
+    std::string Format(const Message& msg) const;
 
 public:
     static std::function<void()> Start(const std::string& log_path, Buffer& buffer, size_t max_log_lines);

@@ -117,19 +117,21 @@ function func_map()
 function cf()
 {
     cd ${ProjectPath}
-    find src -name '*.cpp' -o -name '*.h' -o -name '*.c' | xargs clang-format-16 -style=file |\
-        diff -u <(find src -name '*.cpp' -o -name '*.h' -o -name '*.c' | xargs cat) - > .clang-format.diff
+    find src test others -name '*.cpp' -o -name '*.h' -o -name '*.c' | \
+        xargs -I{} bash -c 'clang-format-16 -style=file {} | diff -u -L "{}" -L "{}" {} -' > .clang-format.diff
 }
 
 #################### Section 4 : Main ####################
 
 function main()
 {
+    clear
+
     echo_info "PWD: ${ProjectPath}"
     echo_info "Output: ${ProjectPath}/${BuildPath}"
 
     func_map ${1}
+    cf
 }
 
 main $1
-cf
