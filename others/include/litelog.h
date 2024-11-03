@@ -451,23 +451,74 @@ void Litelog_Log_Trace(const char* format, ...)
 
 struct LitelogLevel
 {
+    /**
+     * @brief Fatal error, the program cannot continue running.
+     */
     void (*fatal)(const char* format, ...);
+    /**
+     * @brief Error, but the program can continue to run.
+     */
     void (*error)(const char* format, ...);
+    /**
+     * @brief Warning, possible problems
+     */
     void (*warning)(const char* format, ...);
+    /**
+     * @brief Important but not false information.
+     */
     void (*notice)(const char* format, ...);
+    /**
+     * @brief Normal information.
+     */
     void (*info)(const char* format, ...);
+    /**
+     * @brief Debug Information
+     */
     void (*debug)(const char* format, ...);
+    /**
+     * @brief The most detailed tracking information。
+     */
     void (*trace)(const char* format, ...);
+    /**
+     * @brief Manually call the log writing interface.
+     * 
+     * @param level used to specific level, @see LOG_LEVEL_*.
+     * @param file __FILE__
+     * @param line __LINE__
+     * @param func __func__
+     */
     int (*manual)(uint8_t level, const char* file, int line, const char* func, const char* format, ...);
+};
+
+struct LitelogControl
+{
+    /**
+     * @brief Terminate the litelog process.
+     */
+    int (*shutdown)();
+    /**
+     * @brief Change log level.
+     * @param level used to specific level, @see LOG_LEVEL_*.
+     */
+    int (*change_level)(uint8_t level);
+    /**
+     * @brief Split the log and create a new log file; aka new-page.
+     */
+    int (*switch_page)();
 };
 
 struct Litelog
 {
+    /**
+     * @brief Init the local litelog client's param.
+     * @param p_program_name name of current process.
+     */
     void (*init)(const char* p_program_name);
+    /**
+     * @brief Release the resources allocated by the current .h file, mainly socket.
+     */
     void (*exit)();
-    int (*shutdown)();
-    int (*change_level)(uint8_t level);
-    int (*switch_page)();
+    struct LitelogControl ctl;
     struct LitelogLevel log;
 };
 
@@ -476,9 +527,11 @@ struct Litelog litelog =
 {
     .init = Litelog_Init,
     .exit = Litelog_Exit,
-    .shutdown = Litelog_Shutdown,
-    .change_level = Litelog_Change_Level,
-    .switch_page = Litelog_Switch_Page,
+    .ctl = {
+        .shutdown = Litelog_Shutdown,
+        .change_level = Litelog_Change_Level,
+        .switch_page = Litelog_Switch_Page,
+    },
     .log = {
         .fatal = Litelog_Log_Fatal,
         .error = Litelog_Log_Error,
