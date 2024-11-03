@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../../src/buffer/writer.h"
+#include "../../../src/formatter/formatter.h"
 #include "../../../src/buffer/buffer.h"
-#include "../../../src/listen/monitor.h"
+#include "../../../src/logger/logger.h"
 #include "../../utils/utils.h"
 #include <cassert>
 #include <cstdint>
@@ -51,7 +51,7 @@ TEST_CASE(writer_write_from_buffer)
     std::copy(send_kernel.begin(), send_kernel.end(), kernel_buffer.begin() + 1);
     send_socket.Send(kernel_buffer.data(), kernel_buffer.size());
 
-    std::thread writer{Writer::Start("/root/Unit", buf, 100)};
+    std::thread formatter{Formatter::Start("/root/Unit", buf, 100)};
 
     sleep(1);
 
@@ -74,8 +74,8 @@ TEST_CASE(writer_write_from_buffer)
 
     sleep(1);
 
-    Writer::Stop();
-    writer.join();
+    Formatter::Stop();
+    formatter.join();
 
     // uint8_t send_exit[1] = { LOG_CTL_EXIT };
     // send_socket.Send(send_exit, 1);

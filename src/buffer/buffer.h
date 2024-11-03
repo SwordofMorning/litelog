@@ -8,6 +8,7 @@
 #include <condition_variable>
 #include <iostream>
 #include <algorithm>
+#include "../logger/message.h"
 
 /**
  * @brief A sophisticated Log Buffer Management System designed to optimize data flow and ensure thread safety.
@@ -29,9 +30,9 @@
 class Buffer
 {
 private:
-    std::vector<std::pair<uint64_t, std::string>> l1_buffer_1;
-    std::vector<std::pair<uint64_t, std::string>> l1_buffer_2;
-    std::vector<std::string> l2_buffer;
+    std::vector<Message> l1_buffer_1;
+    std::vector<Message> l1_buffer_2;
+    std::vector<Message> l2_buffer;
     size_t l1_capacity;
     size_t l2_capacity;
     size_t l1_head_1;
@@ -54,11 +55,11 @@ public:
 
     ~Buffer();
 
-    void Push(const std::pair<uint64_t, std::string>& log);
+    void Push(const Message& msg);
 
     void Transcription();
 
-    std::string Pull(const std::chrono::milliseconds& timeout);
+    Message Pull(const std::chrono::milliseconds& timeout);
 
     bool IsL2Empty();
 

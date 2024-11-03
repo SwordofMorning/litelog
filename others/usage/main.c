@@ -2,29 +2,28 @@
 
 int main()
 {
-    litelog.init();
+    litelog.init("Demo_Program");
+    // litelog.init("Demo_Program_With_Very_Very_Long_Name");
 
-    char buffer[] = " Hello";
-    for (int i = 0; i < 10; ++i)
-    {
-        buffer[0] = '0' + i;
-        litelog.log.info(buffer);
-    }
-
-    sleep(1);
-    litelog.change_level(LOG_LEVEL_D);
-    for (int i = 0; i < 10; ++i)
-    {
-        litelog.log.debug("Hahaha %d", i);
-    }
+    litelog.log.fatal("Fatal!");
+    litelog.log.error("Error!");
+    litelog.log.warning("Warning!");
+    litelog.log.notice("Notice!");
+    litelog.log.info("Information!");
+    litelog.log.debug("Debug!");
+    litelog.log.trace("Trace!");
 
     sleep(1);
+
+    litelog.change_level(LOG_LEVEL_D | LOG_LEVEL_F);
     // litelog.switch_page();
-    litelog.change_level(LOG_LEVEL_D | LOG_LEVEL_E | LOG_LEVEL_I | LOG_LEVEL_W);
     for (int i = 0; i < 10; ++i)
     {
-        litelog.log.details(LOG_LEVEL_D, __FILE__, __LINE__, __func__, "Hello? %d", i);
+        printf("Send2: %d\n", 1 << i);
+        litelog.log.manual(1 << i, __FILE__, __LINE__, __func__, "Send 2: %d", i);
     }
+
+    litelog.log.manual(LOG_LEVEL_D | LOG_LEVEL_E, __FILE__, __LINE__, __func__, "Send 3");
 
     sleep(1);
 

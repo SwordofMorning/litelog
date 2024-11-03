@@ -30,16 +30,17 @@
 #include <iostream>
 #include <functional>
 #include <atomic>
-#include "../config/config.h"
-#include "buffer.h"
+#include "../utils/config/config.h"
+#include "../buffer/buffer.h"
+#include "../logger/message.h"
 
-class Writer
+class Formatter
 {
 private:
-    Writer(const std::string& log_path, Buffer& buffer, size_t max_log_lines);
-    ~Writer();
-    Writer() = delete;
-    void operator=(const Writer&) = delete;
+    Formatter(const std::string& log_path, Buffer& buffer, size_t max_log_lines);
+    ~Formatter();
+    Formatter() = delete;
+    void operator=(const Formatter&) = delete;
 
     std::ofstream m_log_file;
     std::mutex m_file_mutex;
@@ -55,15 +56,20 @@ private:
     void Exit();
     void Info(const std::string& str_time);
 
-    static std::unique_ptr<Writer, std::function<void(Writer*)>> m_writer;
+    static std::unique_ptr<Formatter, std::function<void(Formatter*)>> m_formatter;
 
+    void Write(const Message& msg);
     void Write(const std::string& str);
     void operator()();
+
+    static constexpr int KERNEL_TIME_WIDTH = 8;
+    static constexpr int PROGRAM_NAME_WIDTH = 15;
+    std::string Format(const Message& msg) const;
 
 public:
     static std::function<void()> Start(const std::string& log_path, Buffer& buffer, size_t max_log_lines);
     static void Stop();
     void Switch();
 
-    static Writer& Get_Instance();
+    static Formatter& Get_Instance();
 };

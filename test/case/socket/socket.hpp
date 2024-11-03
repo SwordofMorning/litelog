@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../src/socket/socket_p.h"
+#include "../../../src/utils/socket/socket_p.h"
 #include "../../utils/utils.h"
 #include <thread>
 #include <vector>

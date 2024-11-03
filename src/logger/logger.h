@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * @file monitor.h
+ * @file logger.h
  * @author master@xiaojintao.email
  * @brief Listen others threads or processes's log infomation, then write to file.
  * @version 0.1
@@ -16,19 +16,21 @@
 #include <functional>
 #include <iomanip>
 #include <queue>
-#include "../socket/socket_p.h"
+#include "../utils/socket/socket_p.h"
 #include "../buffer/buffer.h"
-#include "../utils/threadpool.h"
+#include "../utils/threadpool/threadpool.h"
+#include "../utils/global/global.h"
+#include "message.h"
 
-class Monitor
+class Logger
 {
 private:
     void Init();
-    Monitor(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
-    Monitor(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
-    Monitor() = delete;
-    void operator=(const Monitor&) = delete;
-    ~Monitor();
+    Logger(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
+    Logger(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
+    Logger() = delete;
+    void operator=(const Logger&) = delete;
+    ~Logger();
 
     /* ----- Members ----- */
 
@@ -38,36 +40,27 @@ private:
     uint8_t m_log_level;
     std::map<uint8_t, char> m_log_level_symbol;
 
-    std::string m_current_kernel_time;
-    std::string m_current_real_time;
-    std::thread m_time_thread;
-    bool m_stop_time_thread;
-    std::mutex m_time_mtx;
-
-    static std::unique_ptr<Monitor, std::function<void(Monitor*)>> m_monitor;
+    static std::unique_ptr<Logger, std::function<void(Logger*)>> m_logger;
 
     void operator()();
 
-    void UpdateTime();
-    void TimeLoop();
-
-    std::queue<std::pair<uint64_t, std::string>> m_log_queue;
+    std::queue<Message> m_log_queue;
     std::mutex m_queue_mutex;
     std::condition_variable m_queue_cv;
     std::unique_ptr<ThreadPool> m_thread_pool;
 
-    void PushLogEntry(const std::pair<uint64_t, std::string>& log_entry);
+    void PushLogEntry(const Message& msg);
     void ProcessLogEntry();
 
 public:
-    // Bind operator() and Get_Instance(), return callable object of class Monitor.
+    // Bind operator() and Get_Instance(), return callable object of class Logger.
     static std::function<void()> Start(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
-    // Bind operator() and Get_Instance(), return callable object of class Monitor.
+    // Bind operator() and Get_Instance(), return callable object of class Logger.
     static std::function<void()> Start(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
 
     static void Stop();
 
-    static Monitor& Get_Instance();
+    static Logger& Get_Instance();
 
     void Set_Log_Level(uint8_t log_level);
 };
