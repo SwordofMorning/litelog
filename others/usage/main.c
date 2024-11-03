@@ -3,6 +3,7 @@
 int main()
 {
     litelog.init("Demo_Program");
+    // litelog.init("Demo_Program_With_Very_Very_Long_Name");
 
     litelog.log.fatal("Fatal!");
     litelog.log.error("Error!");
@@ -21,6 +22,8 @@ int main()
         printf("Send2: %d\n", 1 << i);
         litelog.log.manual(1 << i, __FILE__, __LINE__, __func__, "Send 2: %d", i);
     }
+
+    litelog.log.manual(LOG_LEVEL_D | LOG_LEVEL_E, __FILE__, __LINE__, __func__, "Send 3");
 
     sleep(1);
 

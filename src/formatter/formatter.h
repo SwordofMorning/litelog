@@ -62,6 +62,10 @@ private:
     void Write(const std::string& str);
     void operator()();
 
+    static constexpr int KERNEL_TIME_WIDTH = 8;
+    static constexpr int PROGRAM_NAME_WIDTH = 15;
+    std::string Format(const Message& msg) const;
+
 public:
     static std::function<void()> Start(const std::string& log_path, Buffer& buffer, size_t max_log_lines);
     static void Stop();

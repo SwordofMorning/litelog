@@ -57,11 +57,69 @@ void Formatter::Info(const std::string& str_time)
     Write("===== litlog Set-up =====");
 }
 
+std::string Formatter::Format(const Message& msg) const
+{
+    /* Format kernel time */
+    std::string kernel_time = std::to_string(msg.Get_Time_Info().kernel_time);
+    kernel_time = std::string(KERNEL_TIME_WIDTH - kernel_time.length(), '0') + kernel_time;
+
+    /* Get real time */
+    const std::string& real_time = msg.Get_Time_Info().real_time;
+
+    /* Get level */
+    char level = msg.Get_Level();
+
+    /* Get the program name (parsed from the content) */
+    std::string content = msg.Get_Content();
+    size_t program_start = content.find('[');
+    size_t program_end = content.find(']');
+
+    std::string program_name;
+    std::string pure_content;
+
+    if (program_start != std::string::npos && program_end != std::string::npos)
+    {
+        program_name = content.substr(program_start + 1, program_end - program_start - 1);
+        pure_content = content.substr(program_end + 1);
+    }
+    else
+    {
+        program_name = "Unknown";
+        pure_content = content;
+    }
+
+    // Formatter named fixed width
+    if (program_name.length() < PROGRAM_NAME_WIDTH)
+    {
+        program_name += std::string(PROGRAM_NAME_WIDTH - program_name.length(), ' ');
+    }
+    else
+    {
+        // Truncation has already been handled in @file litelog.h::Litelog_Init, so just add spaces here
+        program_name = program_name.substr(0, PROGRAM_NAME_WIDTH);
+    }
+
+    /* The format string */
+    std::string formatted;
+    // Preallocate space to improve performance
+    formatted.reserve(512);
+
+    // clang-format off
+    formatted = "[" + kernel_time + "]"
+              + "[" + real_time + "]"
+              + "[" + level + "]"
+              + "[" + program_name + "] "
+              + pure_content;
+    // clang-format on
+
+    return formatted;
+}
+
 void Formatter::Write(const Message& msg)
 {
     std::lock_guard<std::mutex> lock(m_file_mutex);
 
-    m_log_file << msg.to_string() << std::endl;
+    m_log_file << this->Format(msg) << std::endl;
 
     m_log_file.flush();
     ++m_lines_written;

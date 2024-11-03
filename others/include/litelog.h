@@ -222,7 +222,9 @@ struct sockaddr_in monitor;
 // local of controller
 struct sockaddr_in controller;
 
-static char program_name[32] = {0};
+#define PROGRAM_NAME_DISPLAY_WIDTH 15
+#define PROGRAM_NAME_BUFFER_SIZE (PROGRAM_NAME_DISPLAY_WIDTH + 5)
+static char program_name[PROGRAM_NAME_BUFFER_SIZE] = {0};
 
 void Litelog_Init(const char* p_program_name)
 {
@@ -239,7 +241,23 @@ void Litelog_Init(const char* p_program_name)
     Socket_Create_Target(&monitor, monitor_ip, monitor_port);
     Socket_Create_Target(&controller, controller_ip, controller_port);
 
-    snprintf(program_name, sizeof(program_name), "[%s]", p_program_name);
+    // Program Name
+    size_t name_len = strlen(p_program_name);
+    if (name_len <= PROGRAM_NAME_DISPLAY_WIDTH)
+    {
+        snprintf(program_name, PROGRAM_NAME_BUFFER_SIZE, "[%s]", p_program_name);
+    }
+    else
+    {
+        // The program name is too long and needs to be truncated
+        char truncated_name[PROGRAM_NAME_DISPLAY_WIDTH + 1];
+        strncpy(truncated_name, p_program_name, PROGRAM_NAME_DISPLAY_WIDTH - 3);
+        truncated_name[PROGRAM_NAME_DISPLAY_WIDTH - 3] = '.';
+        truncated_name[PROGRAM_NAME_DISPLAY_WIDTH - 2] = '.';
+        truncated_name[PROGRAM_NAME_DISPLAY_WIDTH - 1] = '.';
+        truncated_name[PROGRAM_NAME_DISPLAY_WIDTH] = '\0';
+        snprintf(program_name, PROGRAM_NAME_BUFFER_SIZE, "[%s]", truncated_name);
+    }
 }
 
 void Litelog_Exit()
