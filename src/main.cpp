@@ -5,15 +5,18 @@
 #include "logger/clock.h"
 #include "logger/logger.h"
 #include "controller/controller.h"
+#include "sink/sink_socket.h"
 
 int main()
 {
     Init();
 
     Clock::Start();
-
     Buffer buff(l1_cap, l2_cap);
-    std::thread logger{Logger::Start(listen_ip, listen_port, buff)};
+
+    auto socket_sink = std::make_unique<SocketSink>("127.0.0.1", 20000);
+
+    std::thread logger{Logger::Start(std::move(socket_sink), buff)};
     std::thread formatter{Formatter::Start(std::string{log_path} + std::string{log_prefix}, buff, log_lines)};
 
     Logger& m = Logger::Get_Instance();
