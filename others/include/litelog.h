@@ -81,7 +81,7 @@ enum
 /* ======================================== Socket ======================================== */
 /* ======================================================================================== */
 
-struct Socket_Wrap
+struct Litelog_Socket_Wrap
 {
     // socket device.
     int device;
@@ -97,7 +97,7 @@ struct Socket_Wrap
  * @retval 0, success.
  * @retval -1, socket open device fail.
  */
-static int Socket_Open_Device(struct Socket_Wrap* p_socket)
+static int Litelog_Socket_Open_Device(struct Litelog_Socket_Wrap* p_socket)
 {
     p_socket->device = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -112,7 +112,7 @@ static int Socket_Open_Device(struct Socket_Wrap* p_socket)
  * @param p_self_port port of itself.
  * @return int 
  */
-static int Socket_Bind_Target(struct Socket_Wrap* p_socket, const char* p_self_ip, uint16_t p_self_port)
+static int Litelog_Socket_Bind_Target(struct Litelog_Socket_Wrap* p_socket, const char* p_self_ip, uint16_t p_self_port)
 {
     int retval = 0;
 
@@ -132,17 +132,17 @@ static int Socket_Bind_Target(struct Socket_Wrap* p_socket, const char* p_self_i
     return retval;
 }
 
-int Socket_Init(struct Socket_Wrap* p_socket, const char* p_self_ip, uint16_t p_self_port)
+int Litelog_Socket_Init(struct Litelog_Socket_Wrap* p_socket, const char* p_self_ip, uint16_t p_self_port)
 {
     int retval = 0;
 
-    if (Socket_Open_Device(p_socket) != 0)
+    if (Litelog_Socket_Open_Device(p_socket) != 0)
     {
         retval = -1;
         goto out_return;
     }
 
-    if (Socket_Bind_Target(p_socket, p_self_ip, p_self_port) != 0)
+    if (Litelog_Socket_Bind_Target(p_socket, p_self_ip, p_self_port) != 0)
     {
         retval = -2;
         goto out_return;
@@ -152,20 +152,20 @@ out_return:
     return retval;
 }
 
-void Socket_Create_Target(struct sockaddr_in* p_target, const char* p_target_ip, uint16_t p_target_port)
+void Litelog_Socket_Create_Target(struct sockaddr_in* p_target, const char* p_target_ip, uint16_t p_target_port)
 {
     (*p_target).sin_family = AF_INET;
     (*p_target).sin_addr.s_addr = inet_addr(p_target_ip);
     (*p_target).sin_port = htons(p_target_port);
 }
 
-int Socket_Send(int device, uint8_t* buffer, size_t n, struct sockaddr* target)
+int Litelog_Socket_Send(int device, uint8_t* buffer, size_t n, struct sockaddr* target)
 {
     socklen_t length = sizeof(*target);
     return sendto(device, buffer, n, MSG_CONFIRM, target, length);
 }
 
-int Socket_Recv(int device, uint8_t* buffer, size_t n, struct sockaddr* target, int timeout_ms)
+int Litelog_Socket_Recv(int device, uint8_t* buffer, size_t n, struct sockaddr* target, int timeout_ms)
 {
     fd_set rfds;
     struct timeval tv;
@@ -203,7 +203,7 @@ int Socket_Recv(int device, uint8_t* buffer, size_t n, struct sockaddr* target, 
     }
 }
 
-void Socket_Exit(struct Socket_Wrap* p_socket)
+void Litelog_Socket_Exit(struct Litelog_Socket_Wrap* p_socket)
 {
     if (p_socket->device != -1)
     {
@@ -216,7 +216,7 @@ void Socket_Exit(struct Socket_Wrap* p_socket)
 /* ======================================== Client ======================================== */
 /* ======================================================================================== */
 
-struct Socket_Wrap local;
+struct Litelog_Socket_Wrap local;
 // local of monitor
 struct sockaddr_in monitor;
 // local of controller
@@ -228,18 +228,18 @@ static char program_name[PROGRAM_NAME_BUFFER_SIZE] = {0};
 
 void Litelog_Init(const char* p_program_name)
 {
-    char* local_ip = "127.0.0.1";
+    const char* local_ip = "127.0.0.1";
     uint16_t local_port = 50000;
 
-    char* monitor_ip = "127.0.0.1";
+    const char* monitor_ip = "127.0.0.1";
     uint16_t monitor_port = 20000;
 
-    char controller_ip[] = "127.0.0.1";
+    const char controller_ip[] = "127.0.0.1";
     uint16_t controller_port = 20001;
 
-    Socket_Init(&local, local_ip, local_port);
-    Socket_Create_Target(&monitor, monitor_ip, monitor_port);
-    Socket_Create_Target(&controller, controller_ip, controller_port);
+    Litelog_Socket_Init(&local, local_ip, local_port);
+    Litelog_Socket_Create_Target(&monitor, monitor_ip, monitor_port);
+    Litelog_Socket_Create_Target(&controller, controller_ip, controller_port);
 
     // Program Name
     size_t name_len = strlen(p_program_name);
@@ -262,12 +262,12 @@ void Litelog_Init(const char* p_program_name)
 
 void Litelog_Exit()
 {
-    Socket_Exit(&local);
+    Litelog_Socket_Exit(&local);
 }
 
 int Litelog_Send(uint8_t* buffer, size_t n, struct sockaddr_in target)
 {
-    return Socket_Send(local.device, buffer, n, (struct sockaddr*)&target);
+    return Litelog_Socket_Send(local.device, buffer, n, (struct sockaddr*)&target);
 }
 
 int Litelog_Log(uint8_t level, const char* str, size_t n)
@@ -279,7 +279,7 @@ int Litelog_Log(uint8_t level, const char* str, size_t n)
     if ((level & ~valid_levels) != 0 || (level & (level - 1)) != 0)
     {
         ret = -1;
-        goto out_return;
+        return ret;
     }
 
     // Calculate length
@@ -290,7 +290,7 @@ int Litelog_Log(uint8_t level, const char* str, size_t n)
     if (buffer == NULL)
     {
         ret = -2;
-        goto out_return;
+        return ret;
     }
 
     // Fill data
@@ -315,7 +315,7 @@ int Litelog_Log_Manual(uint8_t level, const char* file, int line, const char* fu
     if ((level & ~valid_levels) != 0 || (level & (level - 1)) != 0)
     {
         ret = -1;
-        goto out_return;
+        return ret;
     }
 
     // Create Log Message
@@ -341,7 +341,7 @@ int Litelog_Log_Manual(uint8_t level, const char* file, int line, const char* fu
     if (buffer == NULL)
     {
         ret = -2;
-        goto out_return;
+        return ret;
     }
 
     // Fill data
