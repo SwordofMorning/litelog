@@ -107,7 +107,7 @@ int Litelog_Socket_Open_Device(struct Litelog_Socket_Wrap* p_socket);
  * @param p_self_port port of itself.
  * @return int 
  */
-int Litelog_Socket_Bind_Target(struct Litelog_Socket_Wrap* p_socket, const char* p_self_ip, uint16_t p_self_port);
+int Litelog_Socket_Bind_Target(struct Litelog_Socket_Wrap* p_socket, const char* p_self_ip, uint16_t* p_self_port);
 
 int Litelog_Socket_Init(struct Litelog_Socket_Wrap* p_socket, const char* p_self_ip, uint16_t p_self_port);
 

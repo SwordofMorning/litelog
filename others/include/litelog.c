@@ -11,23 +11,34 @@ int Litelog_Socket_Open_Device(struct Litelog_Socket_Wrap* p_socket)
     return p_socket->device == -1 ? -1 : 0;
 }
 
-int Litelog_Socket_Bind_Target(struct Litelog_Socket_Wrap* p_socket, const char* p_self_ip, uint16_t p_self_port)
+int Litelog_Socket_Bind_Target(struct Litelog_Socket_Wrap* p_socket, const char* p_self_ip, uint16_t* p_self_port)
 {
     int retval = 0;
 
     p_socket->self_address.sin_family = AF_INET;
     p_socket->self_address.sin_addr.s_addr = inet_addr(p_self_ip);
-    p_socket->self_address.sin_port = htons(p_self_port);
+    p_socket->self_address.sin_port = htons(*p_self_port);
 
     socklen_t slen = sizeof(p_socket->self_address);
 
-    if (-1 == bind(p_socket->device, (struct sockaddr*)&(p_socket->self_address), slen))
+    while (bind(p_socket->device, (struct sockaddr*)&(p_socket->self_address), slen) == -1)
     {
-        perror("bind fail");
-        close(p_socket->device);
-        retval = -1;
+        if (errno != EADDRINUSE)
+        {
+            perror("bind fail");
+            close(p_socket->device);
+            retval = -1;
+            goto out_return;
+        }
+        (*p_self_port)++;
+        if (*p_self_port > 65535)
+        {
+            *p_self_port = 60000;
+        }
+        p_socket->self_address.sin_port = htons(*p_self_port);
     }
 
+out_return:
     return retval;
 }
 
@@ -41,7 +52,7 @@ int Litelog_Socket_Init(struct Litelog_Socket_Wrap* p_socket, const char* p_self
         goto out_return;
     }
 
-    if (Litelog_Socket_Bind_Target(p_socket, p_self_ip, p_self_port) != 0)
+    if (Litelog_Socket_Bind_Target(p_socket, p_self_ip, &p_self_port) != 0)
     {
         retval = -2;
         goto out_return;
@@ -124,7 +135,7 @@ struct sockaddr_in controller;
 void Litelog_Init(const char* p_program_name)
 {
     const char* local_ip = "127.0.0.1";
-    uint16_t local_port = 50000;
+    uint16_t local_port = 0;
 
     const char* monitor_ip = "127.0.0.1";
     uint16_t monitor_port = 20000;
