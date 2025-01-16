@@ -19,10 +19,11 @@ int main()
     Clock::Start();
     Buffer buff(l1_cap, l2_cap);
 
-    auto socket_sink = std::make_unique<SocketSink>(listen_ip, listen_port);
-    auto kernel_sink = std::make_unique<KernelSink>();
+    std::vector<std::unique_ptr<ISink>> sinks;
+    sinks.push_back(std::make_unique<SocketSink>(listen_ip, listen_port));
+    sinks.push_back(std::make_unique<KernelSink>());
 
-    std::thread logger{Logger::Start(std::move(kernel_sink), buff)};
+    std::thread logger{Logger::Start(std::move(sinks), buff)};
     std::thread formatter{Formatter::Start(std::string{log_path} + std::string{log_prefix}, buff, log_lines)};
 
     /* --- Step 3 : Controller Listen in Main Thread ---*/

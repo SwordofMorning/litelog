@@ -43,7 +43,7 @@ void KernelSink::Exit()
         close(m_kmsg_fd);
         m_kmsg_fd = -1;
     }
-    
+
     if (m_dmesg_pipe)
     {
         pclose(m_dmesg_pipe);
@@ -103,7 +103,7 @@ bool KernelSink::ProcessRealtimeLog(RawMessage& raw_msg)
     while (true)
     {
         ssize_t ret = read(m_kmsg_fd, m_recv_buffer, BUFFER_SIZE - 1);
-        
+
         if (ret < 0)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
@@ -115,10 +115,10 @@ bool KernelSink::ProcessRealtimeLog(RawMessage& raw_msg)
             return false;
 
         m_recv_buffer[ret] = '\0';
-        
+
         std::string line(m_recv_buffer);
         std::string timestamp, message;
-        
+
         if (ParseKernelMessage(line, timestamp, message))
         {
             if (m_processed_messages.find(message) != m_processed_messages.end())

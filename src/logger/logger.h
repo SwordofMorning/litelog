@@ -27,13 +27,13 @@ class Logger
 {
 private:
     void Init();
-    Logger(std::unique_ptr<ISink> sink, Buffer& buffer);
+    Logger(std::vector<std::unique_ptr<ISink>> sinks, Buffer& buffer);
     Logger() = delete;
     void operator=(const Logger&) = delete;
     ~Logger();
 
     /* ----- Members ----- */
-    std::unique_ptr<ISink> m_sink;
+    std::vector<std::unique_ptr<ISink>> m_sinks;
     Buffer& m_buffer;
     bool m_stop_operator;
     uint8_t m_log_level;
@@ -53,7 +53,7 @@ private:
     void ProcessLogEntry();
 
 public:
-    static std::function<void()> Start(std::unique_ptr<ISink> sink, Buffer& buffer);
+    static std::function<void()> Start(std::vector<std::unique_ptr<ISink>> sinks, Buffer& buffer);
     static void Stop();
     static Logger& Get_Instance();
     void Set_Log_Level(uint8_t log_level);

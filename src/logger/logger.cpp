@@ -18,8 +18,11 @@ void Logger::Init()
     m_log_level_symbol[LOG_LEVEL_T] = 'T';
     m_log_level_symbol[LOG_LEVEL_K] = 'K';
 
-    /* Initialize sink */
-    m_sink->Init();
+    /* Initialize all sinks */
+    for (auto& sink : m_sinks)
+    {
+        sink->Init();
+    }
 
     /* Thread: Log push to buffer */
     m_thread_pool = std::make_unique<ThreadPool>(4);
@@ -29,8 +32,8 @@ void Logger::Init()
     }
 }
 
-Logger::Logger(std::unique_ptr<ISink> sink, Buffer& buffer)
-    : m_sink(std::move(sink))
+Logger::Logger(std::vector<std::unique_ptr<ISink>> sinks, Buffer& buffer)
+    : m_sinks(std::move(sinks))
     , m_buffer(buffer)
 {
     this->Init();
@@ -38,9 +41,12 @@ Logger::Logger(std::unique_ptr<ISink> sink, Buffer& buffer)
 
 Logger::~Logger()
 {
-    if (m_sink)
+    for (auto& sink : m_sinks)
     {
-        m_sink->Exit();
+        if (sink)
+        {
+            sink->Exit();
+        }
     }
 }
 
@@ -50,23 +56,25 @@ void Logger::operator()()
 
     while (!m_stop_operator)
     {
-        if (m_sink->Poll(raw_msg))
+        for (auto& sink : m_sinks)
         {
-            if (raw_msg.level & m_log_level)
+            if (sink->Poll(raw_msg))
             {
-                // clang-format off
-                Message msg(
-                    m_log_id++,
-                    Message::TimeInfo(
-                        g_kernel_uptime.load(),
-                        g_real_time
-                    ),
-                    m_log_level_symbol[raw_msg.level],
-                    raw_msg.content
-                );
-                // clang-format on
-
-                PushLogEntry(msg);
+                if (raw_msg.level & m_log_level)
+                {
+                    // clang-format off
+                    Message msg(
+                        m_log_id++,
+                        Message::TimeInfo(
+                            g_kernel_uptime.load(),
+                            g_real_time
+                        ),
+                        m_log_level_symbol[raw_msg.level],
+                        raw_msg.content
+                    );
+                    // clang-format on
+                    PushLogEntry(msg);
+                }
             }
         }
     }
@@ -104,12 +112,12 @@ void Logger::ProcessLogEntry()
     }
 }
 
-std::function<void()> Logger::Start(std::unique_ptr<ISink> sink, Buffer& buffer)
+std::function<void()> Logger::Start(std::vector<std::unique_ptr<ISink>> sinks, Buffer& buffer)
 {
     // clang-format off
     if (!m_logger)
         m_logger = std::unique_ptr<Logger, std::function<void(Logger*)>>
-            (new Logger(std::move(sink), buffer), [](Logger* logger) { delete logger; });
+            (new Logger(std::move(sinks), buffer), [](Logger* logger) { delete logger; });
     // clang-format on
     return std::bind(&Logger::operator(), &(*m_logger));
 }
