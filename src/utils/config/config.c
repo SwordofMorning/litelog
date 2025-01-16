@@ -78,7 +78,7 @@ void Read_Config(const char* filename)
                         printf("l2_cap: %d\n", l2_cap);
                     }
                 }
-                else if (strcmp(section, "monitor") == 0)
+                else if (strcmp(section, "logger") == 0)
                 {
                     if (strcmp(key, "listen_ip") == 0)
                     {
@@ -92,7 +92,7 @@ void Read_Config(const char* filename)
                         printf("listen_port: %d\n", listen_port);
                     }
                 }
-                else if (strcmp(section, "writer") == 0)
+                else if (strcmp(section, "formatter") == 0)
                 {
                     if (strcmp(key, "log_path") == 0)
                     {
