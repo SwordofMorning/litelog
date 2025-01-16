@@ -11,6 +11,7 @@ char ctl_recv_ip[20] = def_ctl_recv_ip;
 uint16_t ctl_recv_port = def_ctl_recv_port;
 char ctl_send_ip[20] = def_ctl_send_ip;
 uint16_t ctl_send_port = def_ctl_send_port;
+int keep_log_nums;
 
 void Strip_Whitespace(char* str)
 {
@@ -135,6 +136,14 @@ void Read_Config(const char* filename)
                     {
                         ctl_send_port = atoi(value);
                         printf("ctl_send_port: %d\n", ctl_send_port);
+                    }
+                }
+                else if (strcmp(section, "file_maintainer") == 0)
+                {
+                    if (strcmp(key, "keep_log_nums") == 0)
+                    {
+                        keep_log_nums = atoi(value);
+                        printf("keep_log_nums: %d\n", keep_log_nums);
                     }
                 }
             }

@@ -10,7 +10,7 @@ SET(CMAKE_CXX_COMPILER aarch64-none-linux-gnu-c++)
 # ===== Setp 2 : Set Flags =====
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s -O3 -lrt -pthread")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -O3 -lrt -pthread")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -O3 -lrt -pthread -std=c++17")
 
 # ===== Setp 3 : Set Application Name =====
 
