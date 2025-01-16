@@ -21,24 +21,24 @@
 #include "../utils/threadpool/threadpool.h"
 #include "../utils/global/global.h"
 #include "message.h"
+#include "../sink/sink.h"
 
 class Logger
 {
 private:
     void Init();
-    Logger(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
-    Logger(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
+    Logger(std::vector<std::unique_ptr<ISink>> sinks, Buffer& buffer);
     Logger() = delete;
     void operator=(const Logger&) = delete;
     ~Logger();
 
     /* ----- Members ----- */
-
-    Socket_Listen m_listen2;
+    std::vector<std::unique_ptr<ISink>> m_sinks;
     Buffer& m_buffer;
     bool m_stop_operator;
     uint8_t m_log_level;
     std::map<uint8_t, char> m_log_level_symbol;
+    uint64_t m_log_id;
 
     static std::unique_ptr<Logger, std::function<void(Logger*)>> m_logger;
 
@@ -53,14 +53,8 @@ private:
     void ProcessLogEntry();
 
 public:
-    // Bind operator() and Get_Instance(), return callable object of class Logger.
-    static std::function<void()> Start(const char* listen_ip, const uint16_t& listen_port, Buffer& buffer);
-    // Bind operator() and Get_Instance(), return callable object of class Logger.
-    static std::function<void()> Start(const std::string& listen_ip, const uint16_t& listen_port, Buffer& buffer);
-
+    static std::function<void()> Start(std::vector<std::unique_ptr<ISink>> sinks, Buffer& buffer);
     static void Stop();
-
     static Logger& Get_Instance();
-
     void Set_Log_Level(uint8_t log_level);
 };
