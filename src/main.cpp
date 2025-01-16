@@ -5,29 +5,44 @@
 #include "logger/clock.h"
 #include "logger/logger.h"
 #include "controller/controller.h"
+#include "sink/sink_socket.h"
+#include "sink/sink_kernel.h"
 
 int main()
 {
+    /* --- Step 1 : Init ---*/
+
     Init();
 
-    Clock::Start();
+    /* --- Step 2 : Create Source ---*/
 
+    Clock::Start();
     Buffer buff(l1_cap, l2_cap);
-    std::thread logger{Logger::Start(listen_ip, listen_port, buff)};
+
+    std::vector<std::unique_ptr<ISink>> sinks;
+    sinks.push_back(std::make_unique<SocketSink>(listen_ip, listen_port));
+    sinks.push_back(std::make_unique<KernelSink>());
+
+    std::thread logger{Logger::Start(std::move(sinks), buff)};
     std::thread formatter{Formatter::Start(std::string{log_path} + std::string{log_prefix}, buff, log_lines)};
 
-    Logger& m = Logger::Get_Instance();
-    Formatter& w = Formatter::Get_Instance();
+    /* --- Step 3 : Controller Listen in Main Thread ---*/
 
-    Controller ctl(ctl_recv_ip, ctl_recv_port, ctl_send_ip, ctl_send_port, m, w);
-
+    Controller ctl(ctl_recv_ip, ctl_recv_port, ctl_send_ip, ctl_send_port, Logger::Get_Instance(), Formatter::Get_Instance());
     ctl();
+    // wait one second for threadpool
     sleep(1);
 
+    /* --- Step 4 : Release Source ---*/
+
     Logger::Stop();
-    logger.join();
+    if (logger.joinable())
+        logger.join();
+
     Formatter::Stop();
-    formatter.join();
+    if (formatter.joinable())
+        formatter.join();
+
     Clock::Stop();
 
     return 0;

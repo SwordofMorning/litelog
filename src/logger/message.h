@@ -18,6 +18,12 @@
 #include <chrono>
 #include <stdint.h>
 
+struct RawMessage
+{
+    uint8_t level;
+    std::string content;
+};
+
 class Message
 {
 public:

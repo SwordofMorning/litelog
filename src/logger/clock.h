@@ -5,6 +5,7 @@
 #include <chrono>
 #include <time.h>
 #include <functional>
+#include <stdexcept>
 #include "../utils/global/global.h"
 
 class Clock
