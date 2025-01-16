@@ -56,6 +56,9 @@ extern char ctl_send_ip[20];
 #define def_ctl_send_port 12347
 extern uint16_t ctl_send_port;
 
+#define def_keep_log_nums 10
+extern int keep_log_nums;
+
 #ifdef __cplusplus
 }
 #endif
