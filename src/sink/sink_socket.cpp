@@ -18,7 +18,7 @@ void SocketSink::Exit()
 
 bool SocketSink::Poll(RawMessage& raw_msg)
 {
-    int ret = m_listen.Recv(m_recv_buffer, BUFFER_SIZE, 100);
+    int ret = m_listen.Recv(m_recv_buffer, BUFFER_SIZE, 5);
     if (ret <= 0)
         return false;
 
