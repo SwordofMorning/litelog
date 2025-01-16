@@ -6,6 +6,7 @@
 #include "logger/logger.h"
 #include "controller/controller.h"
 #include "sink/sink_socket.h"
+#include "sink/sink_kernel.h"
 
 int main()
 {
@@ -19,8 +20,9 @@ int main()
     Buffer buff(l1_cap, l2_cap);
 
     auto socket_sink = std::make_unique<SocketSink>(listen_ip, listen_port);
+    auto kernel_sink = std::make_unique<KernelSink>();
 
-    std::thread logger{Logger::Start(std::move(socket_sink), buff)};
+    std::thread logger{Logger::Start(std::move(kernel_sink), buff)};
     std::thread formatter{Formatter::Start(std::string{log_path} + std::string{log_prefix}, buff, log_lines)};
 
     /* --- Step 3 : Controller Listen in Main Thread ---*/

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../utils/config/config.h"
 #include "../logger/message.h"
 #include "../utils/global/global.h"
 
