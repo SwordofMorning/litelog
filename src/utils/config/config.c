@@ -11,7 +11,7 @@ char ctl_recv_ip[20] = def_ctl_recv_ip;
 uint16_t ctl_recv_port = def_ctl_recv_port;
 char ctl_send_ip[20] = def_ctl_send_ip;
 uint16_t ctl_send_port = def_ctl_send_port;
-int keep_log_nums;
+int keep_log_nums = def_keep_log_nums;
 
 void Strip_Whitespace(char* str)
 {
@@ -188,6 +188,6 @@ int Mkdir_Recursive(const char* path)
 
 void Init()
 {
-    Read_Config("litelog.ini");
+    Read_Config("/root/app/litelog/litelog.ini");
     Mkdir_Recursive(log_path);
 }

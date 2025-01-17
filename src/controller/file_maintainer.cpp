@@ -17,7 +17,33 @@ FileMaintainer::~FileMaintainer()
 
 void FileMaintainer::Init()
 {
-    std::filesystem::create_directories(m_log_path);
+    try
+    {
+        if (!std::filesystem::exists(m_log_path))
+        {
+            if (!std::filesystem::create_directories(m_log_path))
+            {
+                throw std::runtime_error("Failed to create directory: " + m_log_path);
+            }
+        }
+        else
+        {
+            if (!std::filesystem::is_directory(m_log_path))
+            {
+                throw std::runtime_error(m_log_path + " exists but is not a directory");
+            }
+
+            auto perms = std::filesystem::status(m_log_path).permissions();
+            if ((perms & std::filesystem::perms::owner_write) == std::filesystem::perms::none)
+            {
+                throw std::runtime_error("No write permission for directory: " + m_log_path);
+            }
+        }
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        throw std::runtime_error("Filesystem error: " + std::string(e.what()));
+    }
 }
 
 void FileMaintainer::Exit()
@@ -29,21 +55,40 @@ std::vector<std::filesystem::path> FileMaintainer::GetLogFiles() const
 {
     std::vector<std::filesystem::path> log_files;
 
-    for (const auto& entry : std::filesystem::directory_iterator(m_log_path))
+    try
     {
-        if (entry.path().extension() == ".log")
+        for (const auto& entry : std::filesystem::directory_iterator(m_log_path))
         {
-            log_files.push_back(entry.path());
+            try
+            {
+                if (entry.is_regular_file() && entry.path().extension() == ".log")
+                {
+                    log_files.push_back(entry.path());
+                }
+            }
+            catch (const std::filesystem::filesystem_error&)
+            {
+                continue;
+            }
         }
-    }
 
-    // sort by modify time
-    // clang-format off
-    std::sort(log_files.begin(), log_files.end(),
-        [](const std::filesystem::path& a, const std::filesystem::path& b) {
-            return std::filesystem::last_write_time(a) > std::filesystem::last_write_time(b);
-        });
-    // clang-format on
+        // clang-format off
+        std::sort(log_files.begin(), log_files.end(),
+            [](const std::filesystem::path& a, const std::filesystem::path& b) {
+                try {
+                    return std::filesystem::last_write_time(a) > std::filesystem::last_write_time(b);
+                }
+                catch (const std::filesystem::filesystem_error&)
+                {
+                    return false;
+                }
+            });
+        // clang-format on
+    }
+    catch (const std::filesystem::filesystem_error&)
+    {
+        return std::vector<std::filesystem::path>();
+    }
 
     return log_files;
 }
@@ -52,14 +97,36 @@ void FileMaintainer::Clean()
 {
     std::lock_guard<std::mutex> lock(m_maintain_mutex);
 
-    auto log_files = GetLogFiles();
-
-    if (log_files.size() > m_file_nums)
+    try
     {
-        for (size_t i = m_file_nums; i < log_files.size(); ++i)
+        if (!std::filesystem::exists(m_log_path) || !std::filesystem::is_directory(m_log_path))
         {
-            std::filesystem::remove(log_files[i]);
+            return;
         }
+
+        auto log_files = GetLogFiles();
+
+        if (log_files.size() > m_file_nums)
+        {
+            for (size_t i = m_file_nums; i < log_files.size(); ++i)
+            {
+                try
+                {
+                    if (std::filesystem::exists(log_files[i]))
+                    {
+                        std::filesystem::remove(log_files[i]);
+                    }
+                }
+                catch (const std::filesystem::filesystem_error& e)
+                {
+                    continue;
+                }
+            }
+        }
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        return;
     }
 }
 
@@ -67,9 +134,9 @@ void FileMaintainer::operator()()
 {
     while (!m_stop_maintain)
     {
-        Clean();
         // check per minutes
         std::this_thread::sleep_for(std::chrono::minutes(1));
+        Clean();
     }
 }
 
