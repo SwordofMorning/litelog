@@ -9,6 +9,7 @@
 #include <atomic>
 #include <algorithm>
 #include <filesystem>
+#include <condition_variable>
 
 class FileMaintainer
 {
@@ -22,6 +23,7 @@ private:
     size_t m_file_nums;
     std::atomic<bool> m_stop_maintain;
     std::mutex m_maintain_mutex;
+    std::condition_variable m_cv;
 
     static std::unique_ptr<FileMaintainer, std::function<void(FileMaintainer*)>> m_maintainer;
 

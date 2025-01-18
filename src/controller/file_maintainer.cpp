@@ -134,8 +134,16 @@ void FileMaintainer::operator()()
 {
     while (!m_stop_maintain)
     {
-        // check per minutes
-        std::this_thread::sleep_for(std::chrono::minutes(1));
+        {
+            std::unique_lock<std::mutex> lock(m_maintain_mutex);
+            if (m_cv.wait_for(lock, std::chrono::minutes(1), [this] {
+                    return m_stop_maintain.load();
+                }))
+            {
+                break;
+            }
+        }
+
         Clean();
     }
 }
@@ -152,10 +160,14 @@ std::function<void()> FileMaintainer::Start(const std::string& log_path, size_t 
 
 void FileMaintainer::Stop()
 {
-    if (m_maintainer)
+    if (!m_maintainer)
+        return;
+
     {
+        std::lock_guard<std::mutex> lock(m_maintainer->m_maintain_mutex);
         m_maintainer->m_stop_maintain = true;
     }
+    m_maintainer->m_cv.notify_one();
 }
 
 FileMaintainer& FileMaintainer::Get_Instance()
