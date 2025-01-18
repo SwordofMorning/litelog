@@ -71,12 +71,12 @@ void Read_Config(const char* filename)
                     if (strcmp(key, "l1_cap") == 0)
                     {
                         l1_cap = atoi(value);
-                        printf("l1_cap: %d\n", l1_cap);
+                        printf("l1_cap: %ld\n", l1_cap);
                     }
                     else if (strcmp(key, "l2_cap") == 0)
                     {
                         l2_cap = atoi(value);
-                        printf("l2_cap: %d\n", l2_cap);
+                        printf("l2_cap: %ld\n", l2_cap);
                     }
                 }
                 else if (strcmp(section, "logger") == 0)
@@ -188,6 +188,6 @@ int Mkdir_Recursive(const char* path)
 
 void Init()
 {
-    Read_Config("/root/app/litelog/litelog.ini");
+    Read_Config("./litelog.ini");
     Mkdir_Recursive(log_path);
 }

@@ -92,7 +92,7 @@ bool KernelSink::ProcessHistoryLog(RawMessage& raw_msg)
 
         m_processed_messages.insert(message);
         raw_msg.level = LOG_LEVEL_K;
-        raw_msg.content = std::move("[" + timestamp + "] " + message);
+        raw_msg.content = std::move("[System/Kernel] " + timestamp + ": " + message);
         return true;
     }
     return false;
@@ -126,7 +126,7 @@ bool KernelSink::ProcessRealtimeLog(RawMessage& raw_msg)
 
             m_processed_messages.insert(message);
             raw_msg.level = LOG_LEVEL_K;
-            raw_msg.content = std::move("[" + timestamp + "] " + message);
+            raw_msg.content = std::move("[System/Kernel] " + timestamp + ": " + message);
             return true;
         }
     }
