@@ -50,12 +50,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
 1. `litelog`: The main program, located in the `bin` directory.
 2. `litelog_test`: The unit test program, located in the `test` directory.
+3. `litelog_usage`: The example of calling litelog in other application, located in the `bin` directory.
 
 &emsp;&emsp;The names of these programs are defined in the `./CMakeLists.txt` file:
 
 ```cmake
 SET(APP_NAME "litelog")
 SET(TEST_NAME "litelog_test")
+SET(USAGE_NAME "litelog_usage")
 ```
 
 ## 3. Building
