@@ -1,5 +1,6 @@
 from extract_logs import LogExtractor, SSHConfig
 from merge_logs import LogMerger
+from split_logs import LogSplitter
 import os
 import shutil
 from pathlib import Path
@@ -63,6 +64,10 @@ def get_user_input():
     }
 
 def main():
+    print("\n=== 日志处理工具 ===")
+    print("版本: 1.0")
+    print("功能: 提取、合并、分类处理日志文件")
+    
     # 首先清理工作目录
     if not clean_working_directories():
         print("目录清理失败，程序退出")
@@ -87,33 +92,57 @@ def main():
             local_path="logs"
         )
         
-        # 创建提取器实例
-        print(f"\n正在连接到 {ssh_config['host']}...")
+        # 步骤1: 提取日志
+        print("\n=== 步骤1: 提取日志 ===")
+        print(f"正在连接到 {ssh_config['host']}...")
         extractor = LogExtractor(config)
         
-        # 执行提取
-        if extractor.extract():
-            print("日志提取成功!")
-            
-            # 创建日志合并器
-            merger = LogMerger(
-                log_dir="logs",
-                output_dir="output"
-            )
-            
-            # 执行合并
-            if merger.merge_logs():
-                print("日志合并成功!")
-            else:
-                print("日志合并失败!")
-        else:
+        if not extractor.extract():
             print("日志提取失败!")
+            input("\n按回车键退出程序...")
+            return
+        print("日志提取成功!")
+        
+        # 步骤2: 合并日志
+        print("\n=== 步骤2: 合并日志 ===")
+        merger = LogMerger(
+            log_dir="logs",
+            output_dir="output"
+        )
+        
+        if not merger.merge_logs():
+            print("日志合并失败!")
+            input("\n按回车键退出程序...")
+            return
+        print("日志合并成功!")
+        
+        # 步骤3: 分割日志
+        print("\n=== 步骤3: 分割日志 ===")
+        splitter = LogSplitter(
+            input_file="output/02_filter.log",
+            output_dir="output"
+        )
+        
+        if not splitter.split():
+            print("日志分割失败!")
+            input("\n按回车键退出程序...")
+            return
+        print("日志分割成功!")
+        
+        # 总结处理结果
+        print("\n=== 处理完成 ===")
+        print("1. 日志已从设备提取到 logs 目录")
+        print("2. 合并的日志位于 output/01_merge.log")
+        print("3. 过滤后的日志位于 output/02_filter.log")
+        print("4. 按进程分类的日志位于 output/03_*.log")
             
     except Exception as e:
-        print(f"程序执行出错: {str(e)}")
-    
-    # 等待用户确认后退出
-    input("\n按回车键退出程序...")
+        print(f"\n程序执行出错: {str(e)}")
+    finally:
+        # 等待用户确认后退出
+        print("\n提示：按回车键退出程序...")
+        print("      输出文件位于当前目录的 output 文件夹中")
+        input()
 
 if __name__ == "__main__":
     main()
