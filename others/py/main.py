@@ -1,6 +1,7 @@
 from extract_logs import LogExtractor, SSHConfig
 from merge_logs import LogMerger
 from split_logs import LogSplitter
+from zip_logs import LogArchiver
 import os
 import shutil
 from pathlib import Path
@@ -129,19 +130,33 @@ def main():
             return
         print("日志分割成功!")
         
+        # 步骤4: 压缩日志
+        print("\n=== 步骤4: 压缩日志 ===")
+        archiver = LogArchiver(
+            source_dir="output",
+            backup_dir="backup"
+        )
+        
+        if not archiver.archive_logs():
+            print("日志压缩失败!")
+            input("\n按回车键退出程序...")
+            return
+        print("日志压缩成功!")
+        
         # 总结处理结果
         print("\n=== 处理完成 ===")
         print("1. 日志已从设备提取到 logs 目录")
         print("2. 合并的日志位于 output/01_merge.log")
         print("3. 过滤后的日志位于 output/02_filter.log")
         print("4. 按进程分类的日志位于 output/03_*.log")
+        print("5. 压缩包已保存到 backup 目录")
             
     except Exception as e:
         print(f"\n程序执行出错: {str(e)}")
     finally:
-        # 等待用户确认后退出
         print("\n提示：按回车键退出程序...")
         print("      输出文件位于当前目录的 output 文件夹中")
+        print("      压缩包位于当前目录的 backup 文件夹中")
         input()
 
 if __name__ == "__main__":
