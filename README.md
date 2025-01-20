@@ -1,7 +1,7 @@
 # Litelog
 
-![Code Style Check](https://github.com/SwordofMorning/Litelog/workflows/Code_Style_Check/badge.svg)
-![Build Check](https://github.com/SwordofMorning/Litelog/workflows/Build_Check/badge.svg)
+![Code Style](https://github.com/SwordofMorning/litelog/workflows/Code_Style_Check/badge.svg)
+![Build](https://github.com/SwordofMorning/litelog/workflows/Build_Check/badge.svg)
 
 ## I. Architecture
 
@@ -46,4 +46,4 @@ See reference on <a href = "./docs/wiki/build.md">Build</a>.
 
 ## III. Usage
 
-TODO
+See reference on <a href = "./docs/wiki/usage.md">Usage</a>.
