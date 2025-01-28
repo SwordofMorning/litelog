@@ -30,7 +30,7 @@ This output displays the configuration parameters of litelog.
 
 ## II. Integration with Your Application
 
-&emsp;&emsp;Please refer to the others/include directory and add litelog.h and litelog.c to your project. You can find an example of usage in others/usage/main.c. The basic steps are as follows:
+&emsp;&emsp;Please refer to the `usage/inc` directory and add litelog.h and litelog.c to your project. You can find an example of usage in `usage/src/main.c`. The basic steps are as follows:
 
 ```c
 // 1. Initialize litelog (the socket)

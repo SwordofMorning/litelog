@@ -22,7 +22,7 @@ SET(USAGE_NAME "litelog_usage")
 
 ADD_SUBDIRECTORY(src bin)
 # ADD_SUBDIRECTORY(test)
-ADD_SUBDIRECTORY(others/usage)
+ADD_SUBDIRECTORY(usage/src)
 
 # ===== Step 5: Generate Version Info =====
 
