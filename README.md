@@ -47,6 +47,6 @@ See reference on <a href = "./docs/wiki/build.md">Build</a>.
 
 See reference on <a href = "./docs/wiki/usage.md">Usage</a>.
 
-### IV. VSC Plug
+## IV. VSC Plug
 
 <a href="https://github.com/SwordofMorning/litelog-highlighter">litelog-highlighter</a> is a VS Code plug, which is used to highlight the log lines. You could just search and install it in VSC.
