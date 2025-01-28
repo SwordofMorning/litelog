@@ -1,4 +1,4 @@
-#include "../include/litelog.h"
+#include "../inc/litelog.h"
 
 int main()
 {

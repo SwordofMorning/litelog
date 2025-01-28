@@ -1,6 +1,6 @@
 FILE(
     GLOB_RECURSE SRC_LIST 
-    ../include/*.c
+    ../inc/*.c
     ./*.c
 )
 

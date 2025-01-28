@@ -17,10 +17,8 @@ This project is built using cmake. For ease of use, `build.sh` is written to qui
 ├── .gitignore
 ├── LICENSE
 ├── others                  # usage and some scripts.
-│   ├── include                 # That's all you need if your program needs to call litelog.
 │   ├── ini                     # ini file pattern.
 │   ├── py                      # python scripts, used to extract log file from target machine.
-│   ├── usage                   # usage example.
 │   └── version                 # version control information.
 ├── README.md
 ├── src                     # resource.
@@ -37,7 +35,8 @@ This project is built using cmake. For ease of use, `build.sh` is written to qui
 │       ├── global                  # global variable.
 │       ├── socket                  # socket interface.
 │       └── threadpool              # threadpool for logger.
-└── test                    # unit test.
+├── test                    # unit test.
+└── usag                    # example for others program that wish to use litelog.
 ```
 
 ## II. Build
