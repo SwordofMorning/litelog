@@ -40,7 +40,8 @@ extern char listen_ip[20];
 #define def_listen_port 20000
 extern uint16_t listen_port;
 
-#define def_log_path "/var/run/litelog/"
+// #define def_log_path "/var/run/litelog/"
+#define def_log_path "/root/"
 extern char log_path[MAX_PATH_LENGTH];
 #define def_log_prefix ""
 extern char log_prefix[MAX_PATH_LENGTH];

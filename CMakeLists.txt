@@ -4,8 +4,12 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
 # ===== Setp 1 : Set Cross Compiler Path =====
 
-# SET(CMAKE_C_COMPILER aarch64-none-linux-gnu-gcc)
-# SET(CMAKE_CXX_COMPILER aarch64-none-linux-gnu-c++)
+SET(_SDK_PATH_ "/hdd/System/RV1126/")
+SET(_BUILDROOT_PATH_ "${_SDK_PATH_}RV1126_RV1109_LINUX_SDK_V2.2.5.1_20230530/buildroot/output/rockchip_rv1126_rv1109/host/")
+SET(_COMPILER_PATH_ "${_BUILDROOT_PATH_}bin/")
+
+SET(CMAKE_C_COMPILER ${_COMPILER_PATH_}arm-linux-gnueabihf-gcc)
+SET(CMAKE_CXX_COMPILER ${_COMPILER_PATH_}arm-linux-gnueabihf-g++)
 
 # ===== Setp 2 : Set Flags =====
 
