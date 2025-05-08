@@ -4,8 +4,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
 # ===== Setp 1 : Set Cross Compiler Path =====
 
-# SET(CMAKE_C_COMPILER aarch64-none-linux-gnu-gcc)
-# SET(CMAKE_CXX_COMPILER aarch64-none-linux-gnu-c++)
+SET(CMAKE_C_COMPILER aarch64-none-linux-gnu-gcc)
+SET(CMAKE_CXX_COMPILER aarch64-none-linux-gnu-c++)
 
 # ===== Setp 2 : Set Flags =====
 
