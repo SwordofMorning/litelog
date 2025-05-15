@@ -42,7 +42,7 @@ extern uint16_t listen_port;
 
 #define def_log_path "/var/run/litelog/"
 extern char log_path[MAX_PATH_LENGTH];
-#define def_log_prefix ""
+#define def_log_prefix "litelog"
 extern char log_prefix[MAX_PATH_LENGTH];
 #define def_log_lines 65535
 extern int log_lines;
